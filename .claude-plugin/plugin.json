@@ -1,0 +1,5 @@
+{
+  "name": "autonomous-workflow",
+  "description": "Autonomous multi-agent feature development workflow. Run /build with a rough requirement and a team of principal-level AI agents builds a complete, working feature with structured human review gates.",
+  "version": "0.2.0"
+}

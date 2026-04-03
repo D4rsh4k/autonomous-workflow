@@ -1,0 +1,6 @@
+# Pipeline run state and artifacts (created in the target app project when using /build)
+.build/
+
+# Local tooling (optional)
+.embold/
+

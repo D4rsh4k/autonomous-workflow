@@ -3,1186 +3,602 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>autonomous-workflow — AI Feature Pipeline for Claude Code</title>
-  <meta name="description" content="Eight specialized AI agents research, design, architect, and build your features — with your approval at every gate. A Claude Code plugin.">
-  <meta property="og:title" content="autonomous-workflow">
-  <meta property="og:description" content="Eight specialized AI agents build features with structured human review gates.">
+  <title>autonomous-workflow</title>
+  <meta name="description" content="A Claude Code plugin. Eight AI agents build your features through structured gates with human approval at each step.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;0,6..96,900;1,6..96,400;1,6..96,700&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #f8f4ed;
-      --bg-warm:     #f2ede4;
-      --surface:     #eee8dd;
-      --border:      rgba(30,22,12,0.09);
-      --border-hi:   rgba(30,22,12,0.15);
-      --ink:         #1c1710;
-      --ink-2:       #4a4035;
-      --ink-3:       #9a8e80;
-      --ink-4:       #ccc4b6;
-      --rust:        #8c3a1e;
-      --rust-mid:    #a84a28;
-      --rust-dim:    rgba(140,58,30,0.08);
-      --rust-line:   rgba(140,58,30,0.22);
-      --green:       #2d6645;
-      --display:     'Bodoni Moda', serif;
-      --body:        'EB Garamond', serif;
-      --mono:        'JetBrains Mono', monospace;
+      --text:    #111;
+      --text-2:  #555;
+      --text-3:  #999;
+      --border:  #e5e5e5;
+      --bg:      #fff;
+      --bg-2:    #f7f7f7;
     }
 
-    html { scroll-behavior: smooth; }
-
     body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: var(--body);
-      font-size: 18px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
       line-height: 1.65;
-      overflow-x: hidden;
+      color: var(--text);
+      background: var(--bg);
       -webkit-font-smoothing: antialiased;
     }
 
-    /* subtle paper grain */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 9999;
-      opacity: .022;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-size: 200px 200px;
+    a { color: inherit; text-decoration: none; }
+
+    /* ── LAYOUT ── */
+    .wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
     }
+
+    section { padding: 4rem 0; border-bottom: 1px solid var(--border); }
+    section:last-of-type { border-bottom: none; }
 
     /* ── NAV ── */
     nav {
-      position: fixed;
-      inset: 0 0 auto 0;
-      z-index: 100;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+
+    .nav-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      height: 52px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 clamp(1.5rem, 6vw, 5rem);
-      height: 62px;
-      background: rgba(248,244,237,0.88);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid var(--border);
     }
 
-    .nav-logo {
-      font-family: var(--mono);
-      font-size: .76rem;
-      font-weight: 400;
-      color: var(--ink);
-      letter-spacing: .04em;
-      text-decoration: none;
+    .nav-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .78rem;
+      font-weight: 500;
+      color: var(--text);
     }
 
     .nav-links {
       display: flex;
+      gap: 1.5rem;
       align-items: center;
-      gap: 2rem;
     }
 
     .nav-links a {
-      font-family: var(--mono);
-      font-size: .72rem;
-      font-weight: 400;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--ink-3);
-      text-decoration: none;
-      transition: color .2s;
+      font-size: .84rem;
+      color: var(--text-2);
+      transition: color .15s;
     }
 
-    .nav-links a:hover { color: var(--ink); }
+    .nav-links a:hover { color: var(--text); }
 
-    .nav-cta {
-      color: var(--bg) !important;
-      background: var(--ink);
-      padding: .45rem 1.1rem;
-      border-radius: 1px;
-      transition: background .2s !important;
+    .nav-links .cta {
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--bg);
+      background: var(--text);
+      padding: .35rem .9rem;
+      border-radius: 6px;
+      transition: opacity .15s;
     }
 
-    .nav-cta:hover { background: var(--ink-2) !important; }
+    .nav-links .cta:hover { opacity: .8; }
 
     /* ── HERO ── */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 0 clamp(1.5rem, 6vw, 5rem) clamp(4rem, 8vw, 6rem);
-      border-bottom: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
-    }
+    .hero { padding: 5rem 0 4rem; }
 
-    /* large watermark numeral */
-    .hero-watermark {
-      position: absolute;
-      top: 50%;
-      right: -2%;
-      transform: translateY(-54%);
-      font-family: var(--display);
-      font-weight: 900;
-      font-size: clamp(18rem, 38vw, 38rem);
-      line-height: 1;
-      color: rgba(30,22,12,0.032);
-      user-select: none;
-      pointer-events: none;
-      letter-spacing: -.05em;
-    }
-
-    .hero-inner {
-      position: relative;
-      z-index: 1;
-      max-width: 820px;
-    }
-
-    .hero-kicker {
-      display: flex;
-      align-items: center;
-      gap: .75rem;
-      margin-bottom: 2.5rem;
-      opacity: 0;
-      animation: reveal .7s .1s forwards;
-    }
-
-    .kicker-rule {
-      width: 32px;
-      height: 1px;
-      background: var(--rust);
-    }
-
-    .kicker-text {
-      font-family: var(--mono);
-      font-size: .7rem;
+    .tag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .72rem;
       font-weight: 400;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--rust);
+      color: var(--text-3);
+      border: 1px solid var(--border);
+      padding: .25rem .65rem;
+      border-radius: 4px;
+      margin-bottom: 1.5rem;
     }
 
     h1 {
-      font-family: var(--display);
-      font-weight: 900;
-      font-size: clamp(3rem, 8vw, 7.5rem);
-      line-height: .96;
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      font-weight: 600;
+      line-height: 1.18;
       letter-spacing: -.025em;
-      color: var(--ink);
-      margin-bottom: 2rem;
-      opacity: 0;
-      animation: reveal .75s .2s forwards;
-    }
-
-    h1 em {
-      font-style: italic;
-      color: var(--rust);
+      color: var(--text);
+      margin-bottom: 1rem;
     }
 
     .hero-sub {
-      font-family: var(--body);
-      font-size: clamp(1.1rem, 2vw, 1.3rem);
-      font-weight: 400;
-      font-style: italic;
-      color: var(--ink-2);
+      font-size: 1.05rem;
+      color: var(--text-2);
       max-width: 520px;
-      line-height: 1.75;
-      margin-bottom: 2.75rem;
-      opacity: 0;
-      animation: reveal .75s .32s forwards;
+      margin-bottom: 2rem;
     }
 
     .hero-actions {
       display: flex;
-      gap: 1rem;
+      gap: .75rem;
       flex-wrap: wrap;
-      margin-bottom: 5rem;
-      opacity: 0;
-      animation: reveal .75s .44s forwards;
     }
 
-    .btn-primary {
-      font-family: var(--mono);
-      font-size: .76rem;
-      font-weight: 500;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--bg);
-      background: var(--ink);
-      padding: .85rem 2rem;
-      border-radius: 1px;
-      text-decoration: none;
-      transition: background .2s, transform .15s;
+    .btn {
+      font-size: .88rem;
+      font-weight: 600;
+      padding: .6rem 1.35rem;
+      border-radius: 7px;
+      transition: opacity .15s;
       display: inline-block;
     }
 
-    .btn-primary:hover {
-      background: var(--rust);
-      transform: translateY(-1px);
-    }
+    .btn:hover { opacity: .8; }
 
-    .btn-ghost {
-      font-family: var(--mono);
-      font-size: .76rem;
-      font-weight: 400;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--ink-2);
+    .btn-dark { background: var(--text); color: var(--bg); }
+
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--text-2);
       background: transparent;
-      border: 1px solid var(--border-hi);
-      padding: .85rem 2rem;
-      border-radius: 1px;
-      text-decoration: none;
-      transition: all .2s;
-      display: inline-block;
     }
 
-    .btn-ghost:hover {
-      color: var(--ink);
-      border-color: var(--ink-2);
-      transform: translateY(-1px);
-    }
-
-    /* ── PIPELINE STRIP (hero bottom) ── */
-    .pipeline-strip {
-      display: flex;
-      align-items: flex-start;
-      gap: 0;
-      border-top: 1px solid var(--border);
-      padding-top: 2rem;
-      opacity: 0;
-      animation: reveal .75s .56s forwards;
-    }
-
-    .ps-item {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: .5rem;
-      padding-right: 1.5rem;
-      position: relative;
-    }
-
-    .ps-item:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      top: .55rem;
-      right: .5rem;
-      width: 12px;
-      height: 1px;
-      background: var(--border-hi);
-    }
-
-    .ps-you {
-      font-family: var(--mono);
-      font-size: .6rem;
-      letter-spacing: .1em;
-      color: var(--rust);
-      text-transform: uppercase;
-    }
-
-    .ps-num {
-      font-family: var(--display);
-      font-weight: 700;
-      font-size: 1.4rem;
-      color: var(--ink-4);
-      line-height: 1;
-      letter-spacing: -.02em;
-    }
-
-    .ps-label {
-      font-family: var(--mono);
-      font-size: .63rem;
-      letter-spacing: .06em;
-      color: var(--ink-3);
-      text-transform: uppercase;
-      line-height: 1.4;
-    }
-
-    @keyframes reveal {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: none; }
-    }
-
-    /* ── REVEAL ON SCROLL ── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(22px);
-      transition: opacity .7s ease, transform .7s ease;
-    }
-
-    .reveal.visible { opacity: 1; transform: none; }
-
-    /* ── SECTION COMMON ── */
-    section {
-      padding: clamp(4rem, 9vw, 7rem) clamp(1.5rem, 6vw, 5rem);
-    }
-
-    .section-header {
-      display: flex;
-      align-items: baseline;
-      gap: 1.5rem;
-      margin-bottom: 3.5rem;
-    }
-
-    .section-n {
-      font-family: var(--display);
-      font-weight: 900;
-      font-style: italic;
-      font-size: 4rem;
-      color: var(--ink-4);
-      line-height: 1;
-      flex-shrink: 0;
-    }
-
-    .section-header-text {}
-
-    .section-label {
-      font-family: var(--mono);
-      font-size: .68rem;
-      font-weight: 400;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--rust);
-      margin-bottom: .5rem;
-    }
-
-    h2 {
-      font-family: var(--display);
-      font-weight: 900;
-      font-size: clamp(2.2rem, 4.5vw, 4rem);
-      line-height: .98;
-      letter-spacing: -.03em;
-      color: var(--ink);
-    }
-
-    h2 em { font-style: italic; color: var(--rust); }
-
-    .section-sub {
-      font-family: var(--body);
-      font-style: italic;
-      font-size: 1.1rem;
-      color: var(--ink-2);
-      line-height: 1.75;
-      max-width: 480px;
-      margin-top: .75rem;
-    }
+    .btn-outline:hover { border-color: #bbb; color: var(--text); opacity: 1; }
 
     /* ── HOW IT WORKS ── */
-    .how-section {
-      background: var(--bg-warm);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .how-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 3rem;
-    }
-
-    .how-n {
-      font-family: var(--display);
-      font-weight: 900;
-      font-style: italic;
-      font-size: 2.5rem;
-      color: var(--ink-4);
-      line-height: 1;
-      margin-bottom: 1rem;
-      letter-spacing: -.03em;
-    }
-
-    .how-title {
-      font-family: var(--display);
-      font-weight: 700;
-      font-size: 1.15rem;
-      color: var(--ink);
-      letter-spacing: -.01em;
-      margin-bottom: .6rem;
-      line-height: 1.2;
-    }
-
-    .how-desc {
-      font-family: var(--body);
-      font-size: 1rem;
-      color: var(--ink-2);
-      line-height: 1.7;
-    }
-
-    /* ── GATES SECTION ── */
-    .gates-section {
-      border-bottom: 1px solid var(--border);
-    }
-
-    .gates-list {
-      border-top: 1px solid var(--border);
-    }
-
-    .gate-row {
-      display: grid;
-      grid-template-columns: 80px 1fr 1fr auto;
-      gap: 2rem;
-      align-items: start;
-      padding: 2.25rem 0;
-      border-bottom: 1px solid var(--border);
-      transition: background .2s;
-    }
-
-    .gate-row:hover { background: var(--bg-warm); margin: 0 -3rem; padding-left: 3rem; padding-right: 3rem; }
-
-    .gate-num-big {
-      font-family: var(--display);
-      font-weight: 900;
-      font-style: italic;
-      font-size: 3rem;
-      color: var(--ink-4);
-      line-height: 1;
-      letter-spacing: -.04em;
-      padding-top: .15rem;
-    }
-
-    .gate-title {
-      font-family: var(--display);
-      font-weight: 700;
-      font-size: 1.3rem;
-      color: var(--ink);
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
       letter-spacing: -.015em;
-      margin-bottom: .5rem;
-      line-height: 1.2;
+      margin-bottom: 1.5rem;
     }
 
-    .gate-desc-text {
-      font-family: var(--body);
-      font-size: 1rem;
-      color: var(--ink-2);
-      line-height: 1.65;
-    }
+    .steps { display: flex; flex-direction: column; gap: 1.25rem; }
 
-    .gate-agents-col {
-      display: flex;
-      flex-direction: column;
-      gap: .35rem;
-      padding-top: .15rem;
-    }
-
-    .gate-agent-item {
-      font-family: var(--mono);
-      font-size: .65rem;
-      font-weight: 400;
-      letter-spacing: .06em;
-      color: var(--ink-3);
-      text-transform: uppercase;
-    }
-
-    .gate-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      font-family: var(--mono);
-      font-size: .6rem;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--rust);
-      border: 1px solid var(--rust-line);
-      background: var(--rust-dim);
-      padding: .25rem .65rem;
-      border-radius: 1px;
-      white-space: nowrap;
-      align-self: start;
-    }
-
-    .gate-badge::before {
-      content: '';
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--rust);
-    }
-
-    /* ── AGENTS ── */
-    .agents-section {
-      background: var(--bg-warm);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .agents-list {
-      border-top: 1px solid var(--border);
-    }
-
-    .agent-row {
+    .step {
       display: grid;
-      grid-template-columns: 52px 200px 1fr;
-      gap: 2rem;
-      align-items: center;
-      padding: 1.6rem 0;
-      border-bottom: 1px solid var(--border);
-      transition: background .2s;
-    }
-
-    .agent-row:hover {
-      background: var(--surface);
-      margin: 0 -3rem;
-      padding-left: 3rem;
-      padding-right: 3rem;
-    }
-
-    .agent-initials {
-      width: 44px; height: 44px;
-      border-radius: 2px;
-      border: 1px solid var(--border-hi);
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--display);
-      font-weight: 700;
-      font-style: italic;
-      font-size: 1rem;
-      color: var(--ink-2);
-      flex-shrink: 0;
-      transition: border-color .2s, color .2s;
-    }
-
-    .agent-row:hover .agent-initials {
-      border-color: var(--rust-line);
-      color: var(--rust);
-      background: var(--rust-dim);
-    }
-
-    .agent-name-col {}
-
-    .agent-name {
-      font-family: var(--display);
-      font-style: italic;
-      font-weight: 400;
-      font-size: 1.15rem;
-      color: var(--ink);
-      line-height: 1.2;
-      margin-bottom: .2rem;
-    }
-
-    .agent-role {
-      font-family: var(--mono);
-      font-size: .63rem;
-      font-weight: 400;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--rust);
-    }
-
-    .agent-desc-text {
-      font-family: var(--body);
-      font-size: .98rem;
-      color: var(--ink-2);
-      line-height: 1.65;
-    }
-
-    /* ── INSTALL ── */
-    .install-section {
-      border-bottom: 1px solid var(--border);
-    }
-
-    .install-cols {
-      display: grid;
-      grid-template-columns: 1fr 1.4fr;
-      gap: 4rem;
-      align-items: start;
-    }
-
-    .install-left {}
-
-    .install-steps {
-      list-style: none;
-      margin-top: 2rem;
-      display: flex;
-      flex-direction: column;
+      grid-template-columns: 28px 1fr;
       gap: 1rem;
-    }
-
-    .install-step {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
+      align-items: baseline;
     }
 
     .step-n {
-      font-family: var(--display);
-      font-weight: 900;
-      font-style: italic;
-      font-size: 1.6rem;
-      color: var(--ink-4);
-      line-height: 1;
-      flex-shrink: 0;
-      width: 28px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .78rem;
+      color: var(--text-3);
+      font-weight: 400;
+      padding-top: .05em;
     }
 
     .step-text {
-      font-family: var(--body);
-      font-size: 1rem;
-      color: var(--ink-2);
+      font-size: .97rem;
+      color: var(--text-2);
       line-height: 1.6;
-      padding-top: .15rem;
     }
 
-    .step-text strong { font-weight: 500; color: var(--ink); }
+    .step-text strong { color: var(--text); font-weight: 600; }
 
-    /* recipe-style code block */
-    .recipe {
-      background: #fdfaf5;
-      border: 1px solid var(--border-hi);
-      border-radius: 3px;
-      overflow: hidden;
-      box-shadow: 0 2px 24px rgba(30,22,12,0.06), 0 0 0 1px rgba(30,22,12,0.04);
-    }
+    /* ── GATES ── */
+    .gate-list { display: flex; flex-direction: column; }
 
-    .recipe-header {
-      padding: .85rem 1.5rem;
+    .gate-item {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 1.25rem;
+      padding: 1.1rem 0;
       border-bottom: 1px solid var(--border);
+      align-items: start;
+    }
+
+    .gate-item:last-child { border-bottom: none; }
+
+    .gate-n {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .78rem;
+      color: var(--text-3);
+      padding-top: .18em;
+    }
+
+    .gate-title {
+      font-size: .97rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: .25rem;
+    }
+
+    .gate-body {
+      font-size: .93rem;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+
+    .gate-agents {
+      margin-top: .5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .7rem;
+      color: var(--text-3);
+    }
+
+    /* ── AGENTS ── */
+    .agent-list { display: flex; flex-direction: column; }
+
+    .agent-item {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 1.5rem;
+      padding: .9rem 0;
+      border-bottom: 1px solid var(--border);
+      align-items: baseline;
+    }
+
+    .agent-item:last-child { border-bottom: none; }
+
+    .agent-name {
+      font-size: .93rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .agent-role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .68rem;
+      color: var(--text-3);
+      display: block;
+      margin-top: .1rem;
+    }
+
+    .agent-desc {
+      font-size: .93rem;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+
+    /* ── INSTALL ── */
+    .install-block {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+    }
+
+    .install-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      background: rgba(30,22,12,0.025);
-    }
-
-    .recipe-title {
-      font-family: var(--mono);
-      font-size: .68rem;
-      font-weight: 400;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--ink-3);
-    }
-
-    .recipe-body {
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    .recipe-cmd {
+      gap: .75rem;
+      padding: .8rem 1.1rem;
       border-bottom: 1px solid var(--border);
-      padding-bottom: 1.25rem;
     }
 
-    .recipe-cmd:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
+    .install-row:last-child { border-bottom: none; }
+
+    .install-comment {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .72rem;
+      color: var(--text-3);
+      padding: .55rem 1.1rem .2rem;
     }
 
-    .recipe-comment {
-      font-family: var(--mono);
-      font-size: .67rem;
-      color: var(--ink-4);
-      margin-bottom: .45rem;
-      letter-spacing: .02em;
-    }
-
-    .recipe-line {
-      display: flex;
-      align-items: flex-start;
-      gap: .6rem;
-    }
-
-    .recipe-prompt {
-      font-family: var(--mono);
+    .install-prompt {
+      font-family: 'JetBrains Mono', monospace;
       font-size: .82rem;
-      color: var(--rust);
+      color: var(--text-3);
       flex-shrink: 0;
-      margin-top: .03em;
       user-select: none;
     }
 
-    .recipe-code {
-      font-family: var(--mono);
+    .install-cmd {
+      font-family: 'JetBrains Mono', monospace;
       font-size: .82rem;
-      color: var(--ink);
-      line-height: 1.5;
+      color: var(--text);
       flex: 1;
       word-break: break-all;
     }
 
-    .copy-btn {
-      font-family: var(--mono);
-      font-size: .62rem;
-      font-weight: 400;
-      letter-spacing: .06em;
-      color: var(--ink-3);
+    .copy {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .65rem;
+      color: var(--text-3);
       border: 1px solid var(--border);
-      background: transparent;
-      padding: .22rem .55rem;
-      border-radius: 1px;
+      background: var(--bg);
+      padding: .2rem .5rem;
+      border-radius: 4px;
       cursor: pointer;
-      transition: all .2s;
       flex-shrink: 0;
-      margin-top: .05rem;
+      transition: all .15s;
     }
 
-    .copy-btn:hover {
-      color: var(--rust);
-      border-color: var(--rust-line);
-      background: var(--rust-dim);
-    }
+    .copy:hover { color: var(--text); border-color: #bbb; }
+    .copy.ok { color: #16a34a; border-color: #bbf7d0; background: #f0fdf4; }
 
-    .copy-btn.done {
-      color: var(--green);
-      border-color: rgba(45,102,69,.25);
-      background: rgba(45,102,69,.06);
-    }
-
-    .install-note {
-      margin-top: 1.5rem;
-      padding: 1.25rem 1.5rem;
-      border-left: 2px solid var(--rust-line);
-      background: var(--rust-dim);
-      border-radius: 0 2px 2px 0;
-    }
-
-    .install-note p {
-      font-family: var(--body);
-      font-size: .97rem;
-      font-style: italic;
-      color: var(--ink-2);
-      line-height: 1.7;
-    }
-
-    .install-note strong {
-      font-weight: 500;
-      font-style: normal;
-      color: var(--rust);
-    }
-
-    code {
-      font-family: var(--mono);
-      font-size: .82em;
-      color: var(--ink);
-      background: rgba(30,22,12,.06);
-      padding: .1em .35em;
-      border-radius: 2px;
+    .note {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 6px;
+      padding: .85rem 1rem;
+      font-size: .9rem;
+      color: #92400e;
+      line-height: 1.55;
     }
 
     /* ── FOOTER ── */
     footer {
-      padding: 2rem clamp(1.5rem, 6vw, 5rem);
+      padding: 2rem 0;
       border-top: 1px solid var(--border);
+    }
+
+    .footer-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       flex-wrap: wrap;
-      gap: 1rem;
+      gap: .75rem;
     }
 
-    .footer-left {
-      font-family: var(--mono);
-      font-size: .68rem;
-      color: var(--ink-4);
-      letter-spacing: .05em;
+    .footer-inner span {
+      font-size: .82rem;
+      color: var(--text-3);
+      font-family: 'JetBrains Mono', monospace;
     }
 
-    .footer-right {
-      display: flex;
-      gap: 1.5rem;
+    .footer-inner a {
+      font-size: .82rem;
+      color: var(--text-3);
+      transition: color .15s;
     }
 
-    .footer-right a {
-      font-family: var(--mono);
-      font-size: .68rem;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--ink-3);
-      text-decoration: none;
-      transition: color .2s;
-    }
+    .footer-inner a:hover { color: var(--text); }
 
-    .footer-right a:hover { color: var(--ink); }
-
-    /* ── DIVIDER ── */
-    hr { border: none; border-top: 1px solid var(--border); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 720px) {
-      .gate-row { grid-template-columns: 56px 1fr; }
-      .gate-agents-col, .gate-badge { display: none; }
-      .agent-row { grid-template-columns: 44px 1fr; }
-      .agent-desc-text { display: none; }
-      .install-cols { grid-template-columns: 1fr; }
-      .pipeline-strip { display: none; }
-      .nav-links a:not(.nav-cta) { display: none; }
-      .hero-watermark { display: none; }
+    @media (max-width: 500px) {
+      .agent-item { grid-template-columns: 1fr; gap: .25rem; }
+      .nav-links a:not(.cta) { display: none; }
     }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-  <a href="#" class="nav-logo">autonomous-workflow</a>
-  <div class="nav-links">
-    <a href="#pipeline">Pipeline</a>
-    <a href="#agents">Agents</a>
-    <a href="#install">Install</a>
-    <a href="https://github.com/D4rsh4k/autonomous-workflow" target="_blank" rel="noopener">GitHub ↗</a>
-    <a href="#install" class="nav-cta">Install</a>
+  <div class="nav-inner">
+    <span class="nav-name">autonomous-workflow</span>
+    <div class="nav-links">
+      <a href="#install">Install</a>
+      <a href="https://github.com/D4rsh4k/autonomous-workflow" target="_blank" rel="noopener">GitHub</a>
+      <a href="#install" class="cta">Get started</a>
+    </div>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-watermark">8</div>
-  <div class="hero-inner">
-    <div class="hero-kicker">
-      <div class="kicker-rule"></div>
-      <div class="kicker-text">Claude Code Plugin &nbsp;·&nbsp; v0.2.0</div>
-    </div>
-    <h1>Ship features<br>with a team of<br><em>AI experts.</em></h1>
-    <p class="hero-sub">Drop a rough requirement. Eight specialized agents research, design, architect, and build — with your approval at every gate before a single line is committed.</p>
+<div class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="tag">Claude Code Plugin &nbsp;·&nbsp; v0.2.0</div>
+    <h1>An AI engineering team<br>that builds features with you.</h1>
+    <p class="hero-sub">Drop a rough requirement. Eight specialized agents research, design, architect, and build — with your approval at every gate.</p>
     <div class="hero-actions">
-      <a href="#install" class="btn-primary">Install Plugin</a>
-      <a href="https://github.com/D4rsh4k/autonomous-workflow" target="_blank" rel="noopener" class="btn-ghost">View on GitHub ↗</a>
+      <a href="#install" class="btn btn-dark">Install plugin</a>
+      <a href="https://github.com/D4rsh4k/autonomous-workflow" target="_blank" rel="noopener" class="btn btn-outline">View on GitHub ↗</a>
     </div>
+  </section>
 
-    <div class="pipeline-strip">
-      <div class="ps-item">
-        <div class="ps-you">You</div>
-        <div class="ps-num">1</div>
-        <div class="ps-label">Spec<br>Alignment</div>
+  <!-- HOW IT WORKS -->
+  <section>
+    <h2>How it works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-n">01</div>
+        <div class="step-text"><strong>Drop a rough requirement.</strong> Tony Stark (PM) asks a few sharpening questions, then commissions research and writes the full spec.</div>
       </div>
-      <div class="ps-item">
-        <div class="ps-you">You</div>
-        <div class="ps-num">2</div>
-        <div class="ps-label">Design<br>Options</div>
+      <div class="step">
+        <div class="step-n">02</div>
+        <div class="step-text"><strong>Review gates, not code.</strong> At each of 5 gates you get an HTML summary and choose to approve or push back. No code is written until you sign off.</div>
       </div>
-      <div class="ps-item">
-        <div class="ps-you">You</div>
-        <div class="ps-num">3</div>
-        <div class="ps-label">Tech<br>Contract</div>
+      <div class="step">
+        <div class="step-n">03</div>
+        <div class="step-text"><strong>Agents stay in their lane.</strong> Each one has a strict role and passes work through shared files. Sessions can be resumed at any gate.</div>
       </div>
-      <div class="ps-item">
-        <div class="ps-you">You</div>
-        <div class="ps-num">3½</div>
-        <div class="ps-label">Tech Spec<br>Review</div>
-      </div>
-      <div class="ps-item">
-        <div class="ps-you">You</div>
-        <div class="ps-num">4</div>
-        <div class="ps-label">QA &amp;<br>Sign-off</div>
+      <div class="step">
+        <div class="step-n">04</div>
+        <div class="step-text"><strong>The pipeline gets smarter.</strong> After every run, Yoda writes learnings that every agent reads at startup — improving with each build.</div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- HOW IT WORKS -->
-<section class="how-section">
-  <div class="section-label reveal">How it works</div>
-  <h2 class="reveal">Brief once.<br>Ship with <em>confidence.</em></h2>
-  <p class="section-sub reveal">You stay in control without being in the weeds. The agents do the work; you make the calls.</p>
+  <!-- GATES -->
+  <section id="pipeline">
+    <h2>The pipeline</h2>
+    <div class="gate-list">
 
-  <div class="how-grid" style="margin-top: 3.5rem;">
-    <div class="reveal">
-      <div class="how-n">01</div>
-      <div class="how-title">Drop a rough requirement</div>
-      <div class="how-desc">2–3 sentences is enough. Tony Stark (your PM) asks sharpening questions, commissions research, then writes the full spec with success metrics.</div>
-    </div>
-    <div class="reveal" style="transition-delay:.08s">
-      <div class="how-n">02</div>
-      <div class="how-title">Review gates, not pull requests</div>
-      <div class="how-desc">At each of the 5 gates you approve or push back. A browser-ready HTML summary is generated every time. No code is written until you sign off.</div>
-    </div>
-    <div class="reveal" style="transition-delay:.16s">
-      <div class="how-n">03</div>
-      <div class="how-title">Each agent owns its domain</div>
-      <div class="how-desc">Agents have strict roles, never improvise outside them, and pass work through shared artifacts. Your session can resume from any gate.</div>
-    </div>
-    <div class="reveal" style="transition-delay:.24s">
-      <div class="how-n">04</div>
-      <div class="how-title">The pipeline learns</div>
-      <div class="how-desc">After every run, Yoda distils outcomes into <code>learnings.md</code>. Every subsequent run reads those learnings and improves on them.</div>
-    </div>
-  </div>
-</section>
-
-<!-- GATES -->
-<section class="gates-section" id="pipeline">
-  <div class="section-label reveal">The pipeline</div>
-  <h2 class="reveal">Five gates.<br><em>Zero surprises.</em></h2>
-  <p class="section-sub reveal">Every gate ends with a human decision point and a browser-ready HTML summary.</p>
-
-  <div class="gates-list reveal" style="margin-top: 3rem;">
-
-    <div class="gate-row">
-      <div class="gate-num-big">1</div>
-      <div>
-        <div class="gate-title">Spec Alignment</div>
-        <div class="gate-desc-text">Clarify requirements, run competitive research, write the brief with success metrics, validate all assumptions before proceeding.</div>
-      </div>
-      <div class="gate-agents-col">
-        <div class="gate-agent-item">Tony Stark</div>
-        <div class="gate-agent-item">Sherlock Holmes</div>
-        <div class="gate-agent-item">Hermione Granger</div>
-      </div>
-      <div class="gate-badge">Human review</div>
-    </div>
-
-    <div class="gate-row">
-      <div class="gate-num-big">2</div>
-      <div>
-        <div class="gate-title">Design Options</div>
-        <div class="gate-desc-text">3–5 UX approaches built as live frontend routes, each with performance advisory and research annotation. You pick one; the rest are torn down.</div>
-      </div>
-      <div class="gate-agents-col">
-        <div class="gate-agent-item">Jonathan Ive</div>
-        <div class="gate-agent-item">Jackie Chan</div>
-        <div class="gate-agent-item">Bob the Builder</div>
-        <div class="gate-agent-item">Sherlock Holmes</div>
-      </div>
-      <div class="gate-badge">Human review</div>
-    </div>
-
-    <div class="gate-row">
-      <div class="gate-num-big">3</div>
-      <div>
-        <div class="gate-title">Technical Contract</div>
-        <div class="gate-desc-text">Full API contract — endpoints, shapes, error contracts, auth, loading strategy, data model — reviewed and signed off by all consumers.</div>
-      </div>
-      <div class="gate-agents-col">
-        <div class="gate-agent-item">Bob the Builder</div>
-        <div class="gate-agent-item">Jackie Chan</div>
-        <div class="gate-agent-item">Jonathan Ive</div>
-      </div>
-      <div class="gate-badge">Human review</div>
-    </div>
-
-    <div class="gate-row">
-      <div class="gate-num-big">3½</div>
-      <div>
-        <div class="gate-title">Tech Spec Review</div>
-        <div class="gate-desc-text">Schema DDL, exact files touched, build sequence, rollback plan. Schema changes to existing tables require your explicit approval.</div>
-      </div>
-      <div class="gate-agents-col">
-        <div class="gate-agent-item">Bob the Builder</div>
-        <div class="gate-agent-item">Jackie Chan</div>
-        <div class="gate-agent-item">Hermione Granger</div>
-      </div>
-      <div class="gate-badge">Human review</div>
-    </div>
-
-    <div class="gate-row">
-      <div class="gate-num-big">4</div>
-      <div>
-        <div class="gate-title">QA + Sign-off</div>
-        <div class="gate-desc-text">Full build, test plan, execution results, design system compliance, coverage gaps, go/no-go recommendation. Ship or iterate with feedback.</div>
-      </div>
-      <div class="gate-agents-col">
-        <div class="gate-agent-item">Gordon Ramsay</div>
-        <div class="gate-agent-item">Sherlock Holmes</div>
-        <div class="gate-agent-item">Jonathan Ive</div>
-        <div class="gate-agent-item">Jackie + Bob</div>
-      </div>
-      <div class="gate-badge">Human review</div>
-    </div>
-
-  </div>
-</section>
-
-<!-- AGENTS -->
-<section class="agents-section" id="agents">
-  <div class="section-label reveal">The crew</div>
-  <h2 class="reveal">Eight agents.<br><em>One shared goal.</em></h2>
-  <p class="section-sub reveal">Each operates only within its domain, reads all prior artifacts, and applies learnings from every previous run.</p>
-
-  <div class="agents-list reveal" style="margin-top: 3rem;">
-
-    <div class="agent-row">
-      <div class="agent-initials">TS</div>
-      <div class="agent-name-col">
-        <div class="agent-name">Tony Stark</div>
-        <div class="agent-role">PM &amp; Orchestrator</div>
-      </div>
-      <div class="agent-desc-text">Owns the what and why. Drives the pipeline forward, resolves agent conflicts, writes the brief, and maintains the decision log.</div>
-    </div>
-
-    <div class="agent-row">
-      <div class="agent-initials">SH</div>
-      <div class="agent-name-col">
-        <div class="agent-name">Sherlock Holmes</div>
-        <div class="agent-role">Research &amp; Analysis</div>
-      </div>
-      <div class="agent-desc-text">Competitive analysis, assumption audits, mental model maps. Silent red-flag detector in later gates — speaks only when he sees a friction pattern.</div>
-    </div>
-
-    <div class="agent-row">
-      <div class="agent-initials">JI</div>
-      <div class="agent-name-col">
-        <div class="agent-name">Jonathan Ive</div>
-        <div class="agent-role">UX Design</div>
-      </div>
-      <div class="agent-desc-text">Produces 3–5 interaction specs with aesthetic direction and rationale. Reviews the contract for design intent. Validates final output for experience fidelity.</div>
-    </div>
-
-    <div class="agent-row">
-      <div class="agent-initials">BB</div>
-      <div class="agent-name-col">
-        <div class="agent-name">Bob the Builder</div>
-        <div class="agent-role">API &amp; Architecture</div>
-      </div>
-      <div class="agent-desc-text">Designs the full API contract, schema DDL, build sequence, and rollback plan. Nothing gets built without Bob's sign-off.</div>
-    </div>
-
-    <div class="agent-row">
-      <div class="agent-initials">JC</div>
-      <div class="agent-name-col">
-        <div class="agent-name">Jackie Chan</div>
-        <div class="agent-role">Frontend Engineer</div>
-      </div>
-      <div class="agent-desc-text">Builds all design options as live routes; implements the chosen option to production quality. Never creates components without written justification.</div>
-    </div>
-
-    <div class="agent-row">
-      <div class="agent-initials">GR</div>
-      <div class="agent-name-col">
-        <div class="agent-name">Gordon Ramsay</div>
-        <div class="agent-role">QA &amp; Testing</div>
-      </div>
-      <div class="agent-desc-text">Writes and executes the test plan, produces gap reports and component audits, issues the final go/no-go recommendation. No tolerance for sloppy work.</div>
-    </div>
-
-    <div class="agent-row">
-      <div class="agent-initials">HG</div>
-      <div class="agent-name-col">
-        <div class="agent-name">Hermione Granger</div>
-        <div class="agent-role">Project Management</div>
-      </div>
-      <div class="agent-desc-text">Readiness checks at every gate. Tracks deliverable checklists, surfaces blockers immediately, and owns the accuracy of state.json.</div>
-    </div>
-
-    <div class="agent-row">
-      <div class="agent-initials">YO</div>
-      <div class="agent-name-col">
-        <div class="agent-name">Yoda</div>
-        <div class="agent-role">Learning &amp; Memory</div>
-      </div>
-      <div class="agent-desc-text">After every run, analyses decisions and outcomes and writes concise learnings that all agents read at startup — making every subsequent run better.</div>
-    </div>
-
-  </div>
-</section>
-
-<!-- INSTALL -->
-<section class="install-section" id="install">
-  <div class="install-cols">
-    <div class="install-left reveal">
-      <div class="section-label">Get started</div>
-      <h2>Install in<br>two <em>commands.</em></h2>
-      <ol class="install-steps">
-        <li class="install-step">
-          <span class="step-n">1</span>
-          <span class="step-text">Open <strong>Claude Code</strong> (terminal or Desktop, latest version) in your application project.</span>
-        </li>
-        <li class="install-step">
-          <span class="step-n">2</span>
-          <span class="step-text">Add the marketplace and install the plugin with the two commands opposite.</span>
-        </li>
-        <li class="install-step">
-          <span class="step-n">3</span>
-          <span class="step-text">Run <code>/reload-plugins</code>, then start your first build.</span>
-        </li>
-      </ol>
-    </div>
-
-    <div class="reveal" style="transition-delay:.1s">
-      <div class="recipe">
-        <div class="recipe-header">
-          <div class="recipe-title">Installation</div>
-        </div>
-        <div class="recipe-body">
-
-          <div class="recipe-cmd">
-            <div class="recipe-comment"># Step 1 — add the marketplace catalog</div>
-            <div class="recipe-line">
-              <div class="recipe-prompt">/</div>
-              <div class="recipe-code">plugin marketplace add D4rsh4k/autonomous-workflow</div>
-              <button class="copy-btn" data-copy="/plugin marketplace add D4rsh4k/autonomous-workflow">copy</button>
-            </div>
-          </div>
-
-          <div class="recipe-cmd">
-            <div class="recipe-comment"># Step 2 — install the plugin</div>
-            <div class="recipe-line">
-              <div class="recipe-prompt">/</div>
-              <div class="recipe-code">plugin install autonomous-workflow@d4rsh4k-plugins</div>
-              <button class="copy-btn" data-copy="/plugin install autonomous-workflow@d4rsh4k-plugins">copy</button>
-            </div>
-          </div>
-
-          <div class="recipe-cmd">
-            <div class="recipe-comment"># Step 3 — activate</div>
-            <div class="recipe-line">
-              <div class="recipe-prompt">/</div>
-              <div class="recipe-code">reload-plugins</div>
-              <button class="copy-btn" data-copy="/reload-plugins">copy</button>
-            </div>
-          </div>
-
-          <div class="recipe-cmd">
-            <div class="recipe-comment"># Step 4 — start your first build</div>
-            <div class="recipe-line">
-              <div class="recipe-prompt">/</div>
-              <div class="recipe-code">autonomous-workflow:build &lt;your requirement&gt;</div>
-              <button class="copy-btn" data-copy="/autonomous-workflow:build ">copy</button>
-            </div>
-          </div>
-
+      <div class="gate-item">
+        <div class="gate-n">G1</div>
+        <div>
+          <div class="gate-title">Spec Alignment</div>
+          <div class="gate-body">Clarify requirements, run competitive research, write the brief with success metrics, validate assumptions.</div>
+          <div class="gate-agents">Tony Stark · Sherlock Holmes · Hermione</div>
         </div>
       </div>
 
-      <div class="install-note">
-        <p><strong>Desktop showing "Unknown skill: plugin"?</strong> Update Claude Code Desktop to the latest version and restart. Or use the terminal: <code>npm install -g @anthropic-ai/claude-code</code> then run <code>claude</code> from your project directory.</p>
+      <div class="gate-item">
+        <div class="gate-n">G2</div>
+        <div>
+          <div class="gate-title">Design Options</div>
+          <div class="gate-body">3–5 UX approaches built as live routes, each with performance notes and research annotations. You pick one; the rest are torn down.</div>
+          <div class="gate-agents">Jonathan Ive · Jackie Chan · Bob · Sherlock</div>
+        </div>
+      </div>
+
+      <div class="gate-item">
+        <div class="gate-n">G3</div>
+        <div>
+          <div class="gate-title">Technical Contract</div>
+          <div class="gate-body">Full API contract — endpoints, shapes, error handling, auth, loading strategy, data model — reviewed by all consumers.</div>
+          <div class="gate-agents">Bob the Builder · Jackie Chan · Jonathan Ive</div>
+        </div>
+      </div>
+
+      <div class="gate-item">
+        <div class="gate-n">G3½</div>
+        <div>
+          <div class="gate-title">Tech Spec Review</div>
+          <div class="gate-body">Schema DDL, exact files touched, build sequence, rollback plan. Schema changes to existing tables need explicit approval.</div>
+          <div class="gate-agents">Bob the Builder · Jackie Chan · Hermione</div>
+        </div>
+      </div>
+
+      <div class="gate-item">
+        <div class="gate-n">G4</div>
+        <div>
+          <div class="gate-title">QA + Sign-off</div>
+          <div class="gate-body">Test plan, execution results, design system compliance, coverage gaps, go/no-go recommendation. Ship or iterate.</div>
+          <div class="gate-agents">Gordon Ramsay · Sherlock · Ive · Jackie · Bob</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- AGENTS -->
+  <section id="agents">
+    <h2>The agents</h2>
+    <div class="agent-list">
+
+      <div class="agent-item">
+        <div>
+          <div class="agent-name">Tony Stark</div>
+          <span class="agent-role">PM &amp; Orchestrator</span>
+        </div>
+        <div class="agent-desc">Owns the what and why. Drives the pipeline, resolves conflicts, writes the brief, maintains the decision log.</div>
+      </div>
+
+      <div class="agent-item">
+        <div>
+          <div class="agent-name">Sherlock Holmes</div>
+          <span class="agent-role">Research &amp; Analysis</span>
+        </div>
+        <div class="agent-desc">Competitive analysis, assumption audits, mental model maps. Silent red-flag detector in later gates.</div>
+      </div>
+
+      <div class="agent-item">
+        <div>
+          <div class="agent-name">Jonathan Ive</div>
+          <span class="agent-role">UX Design</span>
+        </div>
+        <div class="agent-desc">Produces 3–5 interaction specs with aesthetic direction. Reviews contract for design intent. Validates final output.</div>
+      </div>
+
+      <div class="agent-item">
+        <div>
+          <div class="agent-name">Bob the Builder</div>
+          <span class="agent-role">API &amp; Architecture</span>
+        </div>
+        <div class="agent-desc">Designs API contracts, schema DDL, build sequence, and rollback plans. Nothing ships without Bob's sign-off.</div>
+      </div>
+
+      <div class="agent-item">
+        <div>
+          <div class="agent-name">Jackie Chan</div>
+          <span class="agent-role">Frontend Engineer</span>
+        </div>
+        <div class="agent-desc">Builds all design options as live routes. Implements the chosen option to production quality.</div>
+      </div>
+
+      <div class="agent-item">
+        <div>
+          <div class="agent-name">Gordon Ramsay</div>
+          <span class="agent-role">QA &amp; Testing</span>
+        </div>
+        <div class="agent-desc">Writes and runs the test plan, produces gap reports, issues the final go/no-go recommendation.</div>
+      </div>
+
+      <div class="agent-item">
+        <div>
+          <div class="agent-name">Hermione Granger</div>
+          <span class="agent-role">Project Management</span>
+        </div>
+        <div class="agent-desc">Readiness checks at every gate. Surfaces blockers and owns state.json accuracy throughout.</div>
+      </div>
+
+      <div class="agent-item">
+        <div>
+          <div class="agent-name">Yoda</div>
+          <span class="agent-role">Learning &amp; Memory</span>
+        </div>
+        <div class="agent-desc">After every run, distils outcomes into learnings.md — read by all agents at startup to improve the next build.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- INSTALL -->
+  <section id="install">
+    <h2>Install</h2>
+    <p style="color:var(--text-2);margin-bottom:1.5rem;font-size:.97rem;">Requires <a href="https://code.claude.com/docs/en/quickstart.md" style="text-decoration:underline;color:var(--text-2);" target="_blank" rel="noopener">Claude Code</a>. Run from your application project, not this repo.</p>
+
+    <div class="install-block">
+      <div class="install-comment"># Add the marketplace</div>
+      <div class="install-row">
+        <span class="install-prompt">/</span>
+        <span class="install-cmd">plugin marketplace add D4rsh4k/autonomous-workflow</span>
+        <button class="copy" data-copy="/plugin marketplace add D4rsh4k/autonomous-workflow">copy</button>
+      </div>
+
+      <div class="install-comment"># Install the plugin</div>
+      <div class="install-row">
+        <span class="install-prompt">/</span>
+        <span class="install-cmd">plugin install autonomous-workflow@d4rsh4k-plugins</span>
+        <button class="copy" data-copy="/plugin install autonomous-workflow@d4rsh4k-plugins">copy</button>
+      </div>
+
+      <div class="install-comment"># Activate and run</div>
+      <div class="install-row">
+        <span class="install-prompt">/</span>
+        <span class="install-cmd">reload-plugins</span>
+        <button class="copy" data-copy="/reload-plugins">copy</button>
+      </div>
+
+      <div class="install-row">
+        <span class="install-prompt">/</span>
+        <span class="install-cmd">autonomous-workflow:build &lt;your requirement&gt;</span>
+        <button class="copy" data-copy="/autonomous-workflow:build ">copy</button>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- FOOTER -->
+    <div class="note">
+      <strong>Seeing "Unknown skill: plugin" on Desktop?</strong> Update Claude Code Desktop to the latest version and restart. Or use the terminal: <code style="background:rgba(0,0,0,.06);padding:.1em .3em;border-radius:3px;font-size:.88em">npm install -g @anthropic-ai/claude-code</code>
+    </div>
+  </section>
+
+</div>
+
 <footer>
-  <div class="footer-left">autonomous-workflow &nbsp;·&nbsp; Claude Code Plugin v0.2.0</div>
-  <div class="footer-right">
-    <a href="https://github.com/D4rsh4k/autonomous-workflow" target="_blank" rel="noopener">GitHub</a>
-    <a href="https://code.claude.com/docs/en/plugins.md" target="_blank" rel="noopener">Claude Code Docs</a>
+  <div class="footer-inner">
+    <span>autonomous-workflow v0.2.0</span>
+    <div style="display:flex;gap:1.5rem;">
+      <a href="https://github.com/D4rsh4k/autonomous-workflow" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://code.claude.com/docs/en/plugins.md" target="_blank" rel="noopener">Claude Code Docs</a>
+    </div>
   </div>
 </footer>
 
 <script>
-  // Scroll reveal
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
-    });
-  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
-
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-  // Copy buttons
-  document.querySelectorAll('.copy-btn').forEach(btn => {
+  document.querySelectorAll('.copy').forEach(btn => {
     btn.addEventListener('click', () => {
       navigator.clipboard.writeText(btn.dataset.copy).then(() => {
         btn.textContent = 'copied';
-        btn.classList.add('done');
-        setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('done'); }, 2000);
+        btn.classList.add('ok');
+        setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 2000);
       });
     });
   });
-
-  // Nav border on scroll
-  const nav = document.querySelector('nav');
-  window.addEventListener('scroll', () => {
-    nav.style.borderBottomColor = window.scrollY > 10
-      ? 'rgba(30,22,12,0.13)' : 'rgba(30,22,12,0.09)';
-  }, { passive: true });
 </script>
 </body>
 </html>

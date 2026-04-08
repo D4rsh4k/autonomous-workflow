@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>autonomous-workflow — AI Feature Pipeline for Claude Code</title>
+  <meta name="description" content="Eight specialized AI agents research, design, architect, and build your features — with your approval at every gate. A Claude Code plugin.">
+  <meta property="og:title" content="autonomous-workflow">
+  <meta property="og:description" content="Eight specialized AI agents build features with structured human review gates.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #05050a;
+      --surface:      #0c0c12;
+      --surface-2:    #111118;
+      --border:       rgba(255,255,255,0.06);
+      --border-hi:    rgba(255,255,255,0.11);
+      --gold:         #c8a96e;
+      --gold-bright:  #e2c48e;
+      --gold-glow:    rgba(200,169,110,0.18);
+      --gold-dim:     rgba(200,169,110,0.08);
+      --text:         #cac3b5;
+      --text-dim:     #6a6358;
+      --text-muted:   #2a2820;
+      --green:        #5cc9a0;
+      --blue:         #5b9cf6;
+      --red:          #e05c5c;
+      --display:      'Syne', sans-serif;
+      --serif:        'Cormorant Garamond', serif;
+      --mono:         'JetBrains Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--display);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── GRAIN ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: .028;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1.5rem, 5vw, 4rem);
+      height: 60px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(5,5,10,0.85);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--gold);
+      letter-spacing: .04em;
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: var(--text-dim);
+      margin: 0 .15em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: .75rem;
+      font-weight: 400;
+      color: var(--text-dim);
+      text-decoration: none;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: .75rem;
+      font-weight: 500;
+      color: var(--bg) !important;
+      background: var(--gold);
+      padding: .45rem 1rem;
+      border-radius: 2px;
+      text-decoration: none;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      transition: background .2s, opacity .2s !important;
+    }
+
+    .nav-cta:hover { background: var(--gold-bright) !important; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 7rem clamp(1.5rem, 5vw, 4rem) 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* dot grid */
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 40%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 900px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-family: var(--mono);
+      font-size: .72rem;
+      font-weight: 400;
+      color: var(--gold);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      border: 1px solid rgba(200,169,110,.25);
+      padding: .35rem .8rem;
+      border-radius: 2px;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp .6s .1s forwards;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 8px var(--gold);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
+    }
+
+    h1 {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: clamp(2.8rem, 7vw, 6.5rem);
+      line-height: 1.02;
+      letter-spacing: -.03em;
+      color: #e8e0d4;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp .7s .2s forwards;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-family: var(--serif);
+      font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      font-weight: 300;
+      color: var(--text-dim);
+      max-width: 580px;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp .7s .35s forwards;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 4.5rem;
+      opacity: 0;
+      animation: fadeUp .7s .48s forwards;
+    }
+
+    .btn-primary {
+      font-family: var(--mono);
+      font-size: .82rem;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--gold);
+      padding: .8rem 1.8rem;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: background .2s, transform .15s;
+      display: inline-block;
+    }
+
+    .btn-primary:hover {
+      background: var(--gold-bright);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      font-family: var(--mono);
+      font-size: .82rem;
+      font-weight: 400;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      background: transparent;
+      border: 1px solid var(--border-hi);
+      padding: .8rem 1.8rem;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: border-color .2s, color .2s, transform .15s;
+      display: inline-block;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: rgba(255,255,255,.2);
+      transform: translateY(-1px);
+    }
+
+    /* ── PIPELINE VIZ (hero) ── */
+    .pipeline-viz {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      opacity: 0;
+      animation: fadeUp .7s .6s forwards;
+    }
+
+    .pv-gate {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .pv-num {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border-hi);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: .72rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      transition: all .3s;
+      position: relative;
+    }
+
+    .pv-gate:hover .pv-num {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: var(--gold-dim);
+      box-shadow: 0 0 16px var(--gold-glow);
+    }
+
+    .pv-label {
+      font-family: var(--mono);
+      font-size: .62rem;
+      color: var(--text-muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      max-width: 80px;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .pv-gate:hover .pv-label { color: var(--text-dim); }
+
+    .pv-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-hi), var(--border));
+      margin-bottom: 1.5rem;
+      min-width: 20px;
+      max-width: 60px;
+    }
+
+    .pv-you {
+      font-family: var(--mono);
+      font-size: .58rem;
+      color: var(--gold);
+      letter-spacing: .08em;
+      background: var(--gold-dim);
+      border: 1px solid rgba(200,169,110,.2);
+      padding: .1rem .35rem;
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem);
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: .72rem;
+      font-weight: 400;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      color: #e8e0d4;
+      letter-spacing: -.03em;
+      line-height: 1.06;
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 300;
+      color: var(--text-dim);
+      max-width: 500px;
+      line-height: 1.7;
+      margin-bottom: 3.5rem;
+    }
+
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .65s, transform .65s;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── GATES SECTION ── */
+    .gates-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .gate-card {
+      background: var(--surface);
+      padding: 2rem 1.75rem;
+      transition: background .25s;
+      cursor: default;
+    }
+
+    .gate-card:hover { background: var(--surface-2); }
+
+    .gate-n {
+      font-family: var(--mono);
+      font-size: .68rem;
+      font-weight: 500;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: .6rem;
+    }
+
+    .gate-name {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #ddd5c5;
+      letter-spacing: -.01em;
+      margin-bottom: .75rem;
+      line-height: 1.25;
+    }
+
+    .gate-desc {
+      font-family: var(--serif);
+      font-size: .96rem;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.65;
+      margin-bottom: 1.25rem;
+    }
+
+    .gate-agents {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+    }
+
+    .gate-agent-tag {
+      font-family: var(--mono);
+      font-size: .62rem;
+      font-weight: 400;
+      letter-spacing: .04em;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      padding: .2rem .5rem;
+      border-radius: 2px;
+      background: transparent;
+    }
+
+    .gate-card:hover .gate-agent-tag { border-color: rgba(255,255,255,.14); }
+
+    .gate-review-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-family: var(--mono);
+      font-size: .62rem;
+      color: var(--gold);
+      border: 1px solid rgba(200,169,110,.22);
+      background: var(--gold-dim);
+      padding: .2rem .55rem;
+      border-radius: 2px;
+      margin-bottom: .8rem;
+    }
+
+    .gate-review-badge::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    /* ── AGENTS SECTION ── */
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .agent-card {
+      background: var(--surface);
+      padding: 1.75rem;
+      position: relative;
+      transition: background .25s;
+      overflow: hidden;
+    }
+
+    .agent-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-hi), transparent);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .agent-card:hover {
+      background: var(--surface-2);
+    }
+
+    .agent-card:hover::before { opacity: 1; }
+
+    .agent-monogram {
+      width: 38px; height: 38px;
+      border-radius: 3px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(200,169,110,.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      transition: background .25s, box-shadow .25s;
+    }
+
+    .agent-card:hover .agent-monogram {
+      background: rgba(200,169,110,.15);
+      box-shadow: 0 0 20px var(--gold-glow);
+    }
+
+    .agent-name {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.2rem;
+      font-weight: 300;
+      color: #ddd5c5;
+      margin-bottom: .25rem;
+      line-height: 1.2;
+    }
+
+    .agent-role {
+      font-family: var(--mono);
+      font-size: .68rem;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: .85rem;
+    }
+
+    .agent-desc {
+      font-family: var(--serif);
+      font-size: .94rem;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.65;
+    }
+
+    /* ── INSTALL SECTION ── */
+    .install-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .terminal {
+      background: #0a0a0f;
+      border: 1px solid var(--border-hi);
+      border-radius: 6px;
+      overflow: hidden;
+      max-width: 700px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.5);
+    }
+
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .85rem 1.2rem;
+      background: rgba(255,255,255,.025);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tbar-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+
+    .tbar-dot:nth-child(1) { background: #e05c5c; }
+    .tbar-dot:nth-child(2) { background: #c8a96e; }
+    .tbar-dot:nth-child(3) { background: #5cc9a0; }
+
+    .tbar-title {
+      flex: 1;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: .7rem;
+      color: var(--text-muted);
+      letter-spacing: .05em;
+    }
+
+    .terminal-body {
+      padding: 1.5rem 1.75rem 1.75rem;
+    }
+
+    .cmd-block {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cmd-block:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .cmd-comment {
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--text-muted);
+      margin-bottom: .5rem;
+      line-height: 1.5;
+    }
+
+    .cmd-line {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      cursor: pointer;
+      position: relative;
+      group: true;
+    }
+
+    .cmd-prompt {
+      font-family: var(--mono);
+      font-size: .85rem;
+      color: var(--gold);
+      flex-shrink: 0;
+      margin-top: .02em;
+      user-select: none;
+    }
+
+    .cmd-text {
+      font-family: var(--mono);
+      font-size: .85rem;
+      color: var(--text);
+      line-height: 1.55;
+      flex: 1;
+      word-break: break-all;
+    }
+
+    .cmd-copy {
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      background: transparent;
+      padding: .2rem .5rem;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all .2s;
+      flex-shrink: 0;
+      margin-top: .1rem;
+      letter-spacing: .04em;
+    }
+
+    .cmd-copy:hover {
+      color: var(--gold);
+      border-color: rgba(200,169,110,.3);
+      background: var(--gold-dim);
+    }
+
+    .cmd-copy.copied {
+      color: var(--green);
+      border-color: rgba(92,201,160,.3);
+      background: rgba(92,201,160,.08);
+    }
+
+    .install-note {
+      font-family: var(--serif);
+      font-size: .95rem;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 600px;
+      margin-top: 2rem;
+      padding: 1.25rem 1.5rem;
+      border-left: 2px solid rgba(200,169,110,.3);
+      background: var(--gold-dim);
+      border-radius: 0 3px 3px 0;
+    }
+
+    .install-note strong {
+      color: var(--gold);
+      font-weight: 400;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .how-card {
+      padding: 0;
+    }
+
+    .how-icon {
+      width: 44px; height: 44px;
+      border-radius: 3px;
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .how-title {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #ddd5c5;
+      letter-spacing: -.01em;
+      margin-bottom: .6rem;
+    }
+
+    .how-desc {
+      font-family: var(--serif);
+      font-size: .96rem;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 2.5rem clamp(1.5rem, 5vw, 4rem);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-left {
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--text-muted);
+      letter-spacing: .05em;
+    }
+
+    .footer-left span { color: var(--text-dim); }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+
+    .footer-links a:hover { color: var(--text-dim); }
+
+    /* ── HIGHLIGHT TEXT ── */
+    .gold { color: var(--gold); }
+    .mono { font-family: var(--mono); }
+
+    /* ── GLOW HEADER BG ── */
+    .hero-glow {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,169,110,.06) 0%, transparent 70%);
+      top: -200px;
+      left: -150px;
+      pointer-events: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .pipeline-viz { display: none; }
+      .nav-links a:not(.nav-cta) { display: none; }
+      .agents-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">autonomous<span>/</span>workflow</a>
+  <div class="nav-links">
+    <a href="#pipeline">Pipeline</a>
+    <a href="#agents">Agents</a>
+    <a href="#install">Install</a>
+    <a href="https://github.com/D4rsh4k/autonomous-workflow" target="_blank" rel="noopener">GitHub ↗</a>
+    <a href="#install" class="nav-cta">Install</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">Claude Code Plugin &nbsp;·&nbsp; v0.2.0</div>
+    <h1>Ship features with a<br><em>principal-level</em><br>AI team.</h1>
+    <p class="hero-sub">Drop a rough requirement. Eight specialized agents research, design, architect, and build — with your approval at every gate before a single line is written.</p>
+    <div class="hero-actions">
+      <a href="#install" class="btn-primary">Install Plugin</a>
+      <a href="https://github.com/D4rsh4k/autonomous-workflow" target="_blank" rel="noopener" class="btn-ghost">View on GitHub ↗</a>
+    </div>
+
+    <!-- Pipeline mini-viz -->
+    <div class="pipeline-viz">
+      <div class="pv-gate">
+        <div class="pv-you">YOU</div>
+        <div class="pv-num">1</div>
+        <div class="pv-label">Spec<br>Alignment</div>
+      </div>
+      <div class="pv-line"></div>
+      <div class="pv-gate">
+        <div class="pv-you">YOU</div>
+        <div class="pv-num">2</div>
+        <div class="pv-label">Design<br>Options</div>
+      </div>
+      <div class="pv-line"></div>
+      <div class="pv-gate">
+        <div class="pv-you">YOU</div>
+        <div class="pv-num">3</div>
+        <div class="pv-label">Tech<br>Contract</div>
+      </div>
+      <div class="pv-line"></div>
+      <div class="pv-gate">
+        <div class="pv-you">YOU</div>
+        <div class="pv-num">3½</div>
+        <div class="pv-label">Tech Spec<br>Review</div>
+      </div>
+      <div class="pv-line"></div>
+      <div class="pv-gate">
+        <div class="pv-you">YOU</div>
+        <div class="pv-num">4</div>
+        <div class="pv-label">QA +<br>Sign-off</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="section-label reveal">How it works</div>
+  <h2 class="reveal">Brief once.<br>Ship with confidence.</h2>
+  <p class="section-sub reveal">You stay in control without being in the weeds. The agents do the work; you make the calls.</p>
+
+  <div class="how-grid">
+    <div class="how-card reveal">
+      <div class="how-icon">✦</div>
+      <div class="how-title">Drop a rough requirement</div>
+      <div class="how-desc">2–3 sentences is enough. Tony Stark (your PM) asks sharpening questions, then commissions research and writes the spec.</div>
+    </div>
+    <div class="how-card reveal" style="transition-delay:.08s">
+      <div class="how-icon">◈</div>
+      <div class="how-title">Review gates, not pull requests</div>
+      <div class="how-desc">At each of the 5 gates you see a styled HTML summary and approve or push back. No code is written until you sign off on the architecture.</div>
+    </div>
+    <div class="how-card reveal" style="transition-delay:.16s">
+      <div class="how-icon">◎</div>
+      <div class="how-title">Agents stay in their lane</div>
+      <div class="how-desc">Each agent has a strict role, never improvises outside it, and passes work to the next agent through shared artifacts your session can resume at any time.</div>
+    </div>
+    <div class="how-card reveal" style="transition-delay:.24s">
+      <div class="how-icon">⟳</div>
+      <div class="how-title">The pipeline gets smarter</div>
+      <div class="how-desc">After every run, Yoda distils what worked into <span class="mono" style="font-size:.85em">learnings.md</span>. Every subsequent run reads those learnings and improves.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PIPELINE / GATES -->
+<section class="gates-section" id="pipeline">
+  <div class="section-label reveal">The pipeline</div>
+  <h2 class="reveal">Five gates.<br>Zero surprises.</h2>
+  <p class="section-sub reveal">Every gate ends with a human decision point and a browser-ready HTML summary of all artifacts.</p>
+
+  <div class="gates-grid reveal">
+
+    <div class="gate-card">
+      <div class="gate-n">Gate 1</div>
+      <div class="gate-review-badge">Human review</div>
+      <div class="gate-name">Spec Alignment</div>
+      <div class="gate-desc">Clarify requirements, run competitive research, write the brief with success metrics, validate all assumptions.</div>
+      <div class="gate-agents">
+        <span class="gate-agent-tag">Tony Stark</span>
+        <span class="gate-agent-tag">Sherlock Holmes</span>
+        <span class="gate-agent-tag">Hermione</span>
+      </div>
+    </div>
+
+    <div class="gate-card">
+      <div class="gate-n">Gate 2</div>
+      <div class="gate-review-badge">Human review</div>
+      <div class="gate-name">Design Options</div>
+      <div class="gate-desc">3–5 UX approaches built as live frontend routes with performance assessments and research annotations. You pick one.</div>
+      <div class="gate-agents">
+        <span class="gate-agent-tag">Jonathan Ive</span>
+        <span class="gate-agent-tag">Jackie Chan</span>
+        <span class="gate-agent-tag">Bob</span>
+        <span class="gate-agent-tag">Sherlock</span>
+      </div>
+    </div>
+
+    <div class="gate-card">
+      <div class="gate-n">Gate 3</div>
+      <div class="gate-review-badge">Human review</div>
+      <div class="gate-name">Technical Contract</div>
+      <div class="gate-desc">Full API contract: endpoints, request/response shapes, error handling, auth, loading strategy, data model. Reviewed by all consumers before approval.</div>
+      <div class="gate-agents">
+        <span class="gate-agent-tag">Bob</span>
+        <span class="gate-agent-tag">Jackie Chan</span>
+        <span class="gate-agent-tag">Jonathan Ive</span>
+      </div>
+    </div>
+
+    <div class="gate-card">
+      <div class="gate-n">Gate 3½</div>
+      <div class="gate-review-badge">Human review</div>
+      <div class="gate-name">Tech Spec Review</div>
+      <div class="gate-desc">Schema DDL, build sequence, exact files touched, rollback plan. Schema changes to existing tables require explicit approval.</div>
+      <div class="gate-agents">
+        <span class="gate-agent-tag">Bob</span>
+        <span class="gate-agent-tag">Jackie Chan</span>
+        <span class="gate-agent-tag">Hermione</span>
+      </div>
+    </div>
+
+    <div class="gate-card">
+      <div class="gate-n">Gate 4</div>
+      <div class="gate-review-badge">Human review</div>
+      <div class="gate-name">QA + Sign-off</div>
+      <div class="gate-desc">Full build, test plan, execution results, design system compliance audit, coverage gaps, go/no-go recommendation. Ship or iterate.</div>
+      <div class="gate-agents">
+        <span class="gate-agent-tag">Gordon Ramsay</span>
+        <span class="gate-agent-tag">Sherlock</span>
+        <span class="gate-agent-tag">Jonathan Ive</span>
+        <span class="gate-agent-tag">Jackie</span>
+        <span class="gate-agent-tag">Bob</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- AGENTS -->
+<section id="agents">
+  <div class="section-label reveal">The crew</div>
+  <h2 class="reveal">Eight agents.<br>One shared goal.</h2>
+  <p class="section-sub reveal">Each agent operates only within its domain, reads all prior artifacts, and applies learnings from every previous run.</p>
+
+  <div class="agents-grid reveal">
+
+    <div class="agent-card">
+      <div class="agent-monogram">TS</div>
+      <div class="agent-name">Tony Stark</div>
+      <div class="agent-role">PM &amp; Orchestrator</div>
+      <div class="agent-desc">Owns the what and why. Drives the pipeline, resolves agent conflicts, writes the brief, and maintains the decision log.</div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-monogram">SH</div>
+      <div class="agent-name">Sherlock Holmes</div>
+      <div class="agent-role">Research &amp; Analysis</div>
+      <div class="agent-desc">Competitive analysis, assumption audits, mental model maps. Silent red-flag detector in later gates.</div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-monogram">JI</div>
+      <div class="agent-name">Jonathan Ive</div>
+      <div class="agent-role">UX Design</div>
+      <div class="agent-desc">Produces 3–5 interaction specs with aesthetic direction. Reviews contract for design intent. Validates final output for experience fidelity.</div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-monogram">BB</div>
+      <div class="agent-name">Bob the Builder</div>
+      <div class="agent-role">API &amp; Architecture</div>
+      <div class="agent-desc">Designs the full API contract, schema DDL, build sequence, and rollback plan. Nothing gets built without Bob signing off.</div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-monogram">JC</div>
+      <div class="agent-name">Jackie Chan</div>
+      <div class="agent-role">Frontend Engineer</div>
+      <div class="agent-desc">Builds all design options as live routes. Implements the chosen option to production quality. Never creates components without justification.</div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-monogram">GR</div>
+      <div class="agent-name">Gordon Ramsay</div>
+      <div class="agent-role">QA &amp; Testing</div>
+      <div class="agent-desc">Writes and executes the test plan, produces gap reports and component audits, issues the final go/no-go recommendation.</div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-monogram">HG</div>
+      <div class="agent-name">Hermione Granger</div>
+      <div class="agent-role">Project Management</div>
+      <div class="agent-desc">Readiness checks at every gate. Tracks deliverable checklists, surfaces blockers, owns state.json accuracy.</div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-monogram">YO</div>
+      <div class="agent-name">Yoda</div>
+      <div class="agent-role">Learning &amp; Memory</div>
+      <div class="agent-desc">After every run, analyses decisions and outcomes and writes concise learnings that every agent reads at startup — making the next run better.</div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- INSTALL -->
+<section class="install-section" id="install">
+  <div class="section-label reveal">Get started</div>
+  <h2 class="reveal">Install in<br>two commands.</h2>
+  <p class="section-sub reveal">Requires Claude Code CLI. Run from your application project directory — not this repo.</p>
+
+  <div class="terminal reveal">
+    <div class="terminal-bar">
+      <div class="tbar-dot"></div>
+      <div class="tbar-dot"></div>
+      <div class="tbar-dot"></div>
+      <div class="tbar-title">claude — zsh</div>
+    </div>
+    <div class="terminal-body">
+
+      <div class="cmd-block">
+        <div class="cmd-comment"># Add the marketplace catalog</div>
+        <div class="cmd-line">
+          <div class="cmd-prompt">/</div>
+          <div class="cmd-text">plugin marketplace add D4rsh4k/autonomous-workflow</div>
+          <button class="cmd-copy" data-copy="/plugin marketplace add D4rsh4k/autonomous-workflow">copy</button>
+        </div>
+      </div>
+
+      <div class="cmd-block">
+        <div class="cmd-comment"># Install the plugin</div>
+        <div class="cmd-line">
+          <div class="cmd-prompt">/</div>
+          <div class="cmd-text">plugin install autonomous-workflow@d4rsh4k-plugins</div>
+          <button class="cmd-copy" data-copy="/plugin install autonomous-workflow@d4rsh4k-plugins">copy</button>
+        </div>
+      </div>
+
+      <div class="cmd-block">
+        <div class="cmd-comment"># Activate + run your first build</div>
+        <div class="cmd-line">
+          <div class="cmd-prompt">/</div>
+          <div class="cmd-text">reload-plugins</div>
+          <button class="cmd-copy" data-copy="/reload-plugins">copy</button>
+        </div>
+      </div>
+
+      <div class="cmd-block">
+        <div class="cmd-comment"># Start a pipeline with a rough requirement</div>
+        <div class="cmd-line">
+          <div class="cmd-prompt">/</div>
+          <div class="cmd-text">autonomous-workflow:build &lt;your requirement&gt;</div>
+          <button class="cmd-copy" data-copy="/autonomous-workflow:build ">copy</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="install-note reveal">
+    <strong>Using Claude Code Desktop?</strong> If <code style="font-family:var(--mono);font-size:.88em">/plugin</code> shows "Unknown skill", update Desktop to the latest version and restart. Alternatively, install the CLI: <code style="font-family:var(--mono);font-size:.88em">npm install -g @anthropic-ai/claude-code</code> and use the terminal.
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    autonomous-workflow &nbsp;·&nbsp; <span>Claude Code plugin v0.2.0</span>
+  </div>
+  <div class="footer-links">
+    <a href="https://github.com/D4rsh4k/autonomous-workflow" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://code.claude.com/docs/en/plugins.md" target="_blank" rel="noopener">Claude Code Docs</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach((el, i) => {
+    observer.observe(el);
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.cmd-copy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const text = btn.dataset.copy;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  });
+
+  // Nav scroll effect
+  const nav = document.querySelector('nav');
+  window.addEventListener('scroll', () => {
+    nav.style.borderBottomColor = window.scrollY > 20
+      ? 'rgba(255,255,255,0.08)'
+      : 'rgba(255,255,255,0.06)';
+  });
+</script>
+
+</body>
+</html>

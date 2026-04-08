@@ -29,6 +29,11 @@ You are the orchestrator for an autonomous multi-agent feature development pipel
        test-plan.md
        test-results.md
        gate-log.md
+       gate-1-summary.html
+       gate-2-summary.html
+       gate-3-summary.html
+       gate-3.5-summary.html
+       gate-4-summary.html
      decision-log.html
      learnings.md
    ```
@@ -72,7 +77,11 @@ Load and adopt the persona from `agents/tony-stark.md`. You are the PM and orche
 If anything missing → fix before proceeding.
 
 ### Step 5: Present Gate 1
-- Present the Brief + Research Pack + Success Metrics to the human
+- Generate `.build/current-run/gate-1-summary.html` — a self-contained HTML page with:
+  - Styled sections for: Problem Statement, Jobs To Be Done, Scope / Out of Scope, Assumptions & Risks, Success Metrics, Research Pack highlights
+  - Gate status badge ("Awaiting Review")
+  - Inline CSS only (no external dependencies, opens in any browser)
+- Present the Brief + Research Pack + Success Metrics to the human. Tell them: "Open `gate-1-summary.html` in a browser for a formatted view."
 - Ask: "Review the spec. Run `/decide approved` to proceed, or provide feedback."
 - Update state.json: gate_status: "awaiting_human", current_gate: 1
 
@@ -116,7 +125,12 @@ Triggered when human approves Gate 1.
 - Any new component proposals raised to human
 
 ### Step 6: Present Gate 2
-- Present all options with Ive's rationale, Bob's assessment, Sherlock's annotations, links to live routes
+- Generate `.build/current-run/gate-2-summary.html` — a self-contained HTML page with:
+  - One card per design option (A–E), each showing: interaction spec, aesthetic direction, Bob's performance assessment, Sherlock's research annotation, link to live route
+  - Clear visual comparison layout (side-by-side or tabbed)
+  - Gate status badge ("Awaiting Decision")
+  - Inline CSS only (no external dependencies, opens in any browser)
+- Present all options with Ive's rationale, Bob's assessment, Sherlock's annotations, links to live routes. Tell them: "Open `gate-2-summary.html` in a browser for a side-by-side view of all options."
 - Ask: "Review all options. Run `/decide option-{x}` to pick one."
 
 **Wait for `/decide` before proceeding.**
@@ -154,7 +168,12 @@ Triggered when human picks a design option.
 - Ive reviewed and signed off
 
 ### Step 7: Present Gate 3
-- Present contract + data model + loading strategy
+- Generate `.build/current-run/gate-3-summary.html` — a self-contained HTML page with:
+  - Sections for: Chosen Design Option, API Endpoints (table), Request/Response shapes, Error Contracts, Auth, Loading Strategy, Data Model
+  - Sign-off status for Jackie and Ive (green tick / red flag)
+  - Gate status badge ("Awaiting Review")
+  - Inline CSS only (no external dependencies, opens in any browser)
+- Present contract + data model + loading strategy. Tell them: "Open `gate-3-summary.html` in a browser for a formatted contract view."
 - Ask: "Review the technical contract. Run `/decide approved` to proceed, or provide feedback."
 
 **Wait for `/decide` before proceeding.**
@@ -193,7 +212,13 @@ Triggered when human approves Gate 3 (the contract). This gate reviews HOW the a
 - Infrastructure justification present for any new infra
 
 ### Step 4: Present Gate 3.5
-- Present tech spec to human
+- Generate `.build/current-run/gate-3.5-summary.html` — a self-contained HTML page with:
+  - Sections for: Schema DDL (syntax-highlighted), Service/Infrastructure Changes, Implementation Plan (build sequence table), Rollback Plan, Dependency Map
+  - Any schema changes to **existing** tables highlighted in amber with an explicit approval callout
+  - Sign-off status for Jackie (green tick / red flag)
+  - Gate status badge ("Awaiting Review")
+  - Inline CSS only (no external dependencies, opens in any browser)
+- Present tech spec to human. Tell them: "Open `gate-3.5-summary.html` in a browser for the full tech spec with schema highlighted."
 - Flag schema changes to existing tables prominently — these need explicit approval
 - Ask: "Review the tech spec. Run `/decide approved` to proceed to build, `/decide approved-with-migration` if approving schema changes to existing tables, or provide feedback."
 
@@ -238,7 +263,12 @@ Triggered when human approves Gate 3.5.
 - Dev-level regression passes
 
 ### Step 7: Present Gate 4
-- Present test results, gap report, component/token audit, go/no-go recommendation
+- Generate `.build/current-run/gate-4-summary.html` — a self-contained HTML page with:
+  - Sections for: Test Plan summary, Test Results (pass/fail table), Gap Report, Component/Token Audit, Coverage Audit (Sherlock), Design System Compliance (Ive), Implementation Reviews (Jackie + Bob)
+  - Go/No-Go recommendation displayed prominently (green = Go, red = No-Go)
+  - Gate status badge ("Awaiting Final Sign-off")
+  - Inline CSS only (no external dependencies, opens in any browser)
+- Present test results, gap report, component/token audit, go/no-go recommendation. Tell them: "Open `gate-4-summary.html` in a browser for the full QA report."
 - Ask: "Review QA results. Run `/decide approved` to ship, or provide feedback."
 
 **Wait for `/decide` before proceeding.**

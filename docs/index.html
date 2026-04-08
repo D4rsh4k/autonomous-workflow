@@ -9,754 +9,766 @@
   <meta property="og:description" content="Eight specialized AI agents build features with structured human review gates.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;0,6..96,900;1,6..96,400;1,6..96,700&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:           #05050a;
-      --surface:      #0c0c12;
-      --surface-2:    #111118;
-      --border:       rgba(255,255,255,0.06);
-      --border-hi:    rgba(255,255,255,0.11);
-      --gold:         #c8a96e;
-      --gold-bright:  #e2c48e;
-      --gold-glow:    rgba(200,169,110,0.18);
-      --gold-dim:     rgba(200,169,110,0.08);
-      --text:         #cac3b5;
-      --text-dim:     #6a6358;
-      --text-muted:   #2a2820;
-      --green:        #5cc9a0;
-      --blue:         #5b9cf6;
-      --red:          #e05c5c;
-      --display:      'Syne', sans-serif;
-      --serif:        'Cormorant Garamond', serif;
-      --mono:         'JetBrains Mono', monospace;
+      --bg:          #f8f4ed;
+      --bg-warm:     #f2ede4;
+      --surface:     #eee8dd;
+      --border:      rgba(30,22,12,0.09);
+      --border-hi:   rgba(30,22,12,0.15);
+      --ink:         #1c1710;
+      --ink-2:       #4a4035;
+      --ink-3:       #9a8e80;
+      --ink-4:       #ccc4b6;
+      --rust:        #8c3a1e;
+      --rust-mid:    #a84a28;
+      --rust-dim:    rgba(140,58,30,0.08);
+      --rust-line:   rgba(140,58,30,0.22);
+      --green:       #2d6645;
+      --display:     'Bodoni Moda', serif;
+      --body:        'EB Garamond', serif;
+      --mono:        'JetBrains Mono', monospace;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
-      color: var(--text);
-      font-family: var(--display);
-      font-size: 16px;
-      line-height: 1.6;
+      color: var(--ink);
+      font-family: var(--body);
+      font-size: 18px;
+      line-height: 1.65;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── GRAIN ── */
+    /* subtle paper grain */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 9999;
-      opacity: .028;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: .022;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       background-size: 200px 200px;
     }
 
     /* ── NAV ── */
     nav {
       position: fixed;
-      top: 0; left: 0; right: 0;
+      inset: 0 0 auto 0;
       z-index: 100;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 clamp(1.5rem, 5vw, 4rem);
-      height: 60px;
+      padding: 0 clamp(1.5rem, 6vw, 5rem);
+      height: 62px;
+      background: rgba(248,244,237,0.88);
+      backdrop-filter: blur(18px);
       border-bottom: 1px solid var(--border);
-      background: rgba(5,5,10,0.85);
-      backdrop-filter: blur(16px);
     }
 
     .nav-logo {
       font-family: var(--mono);
-      font-size: .82rem;
-      font-weight: 500;
-      color: var(--gold);
+      font-size: .76rem;
+      font-weight: 400;
+      color: var(--ink);
       letter-spacing: .04em;
       text-decoration: none;
     }
 
-    .nav-logo span {
-      color: var(--text-dim);
-      margin: 0 .15em;
-    }
-
     .nav-links {
       display: flex;
-      gap: 1.5rem;
       align-items: center;
+      gap: 2rem;
     }
 
     .nav-links a {
       font-family: var(--mono);
-      font-size: .75rem;
+      font-size: .72rem;
       font-weight: 400;
-      color: var(--text-dim);
-      text-decoration: none;
-      letter-spacing: .06em;
+      letter-spacing: .08em;
       text-transform: uppercase;
+      color: var(--ink-3);
+      text-decoration: none;
       transition: color .2s;
     }
 
-    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover { color: var(--ink); }
 
     .nav-cta {
-      font-family: var(--mono);
-      font-size: .75rem;
-      font-weight: 500;
       color: var(--bg) !important;
-      background: var(--gold);
-      padding: .45rem 1rem;
-      border-radius: 2px;
-      text-decoration: none;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      transition: background .2s, opacity .2s !important;
+      background: var(--ink);
+      padding: .45rem 1.1rem;
+      border-radius: 1px;
+      transition: background .2s !important;
     }
 
-    .nav-cta:hover { background: var(--gold-bright) !important; }
+    .nav-cta:hover { background: var(--ink-2) !important; }
 
     /* ── HERO ── */
     .hero {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      padding: 7rem clamp(1.5rem, 5vw, 4rem) 5rem;
+      justify-content: flex-end;
+      padding: 0 clamp(1.5rem, 6vw, 5rem) clamp(4rem, 8vw, 6rem);
+      border-bottom: 1px solid var(--border);
       position: relative;
       overflow: hidden;
     }
 
-    /* dot grid */
-    .hero::after {
-      content: '';
+    /* large watermark numeral */
+    .hero-watermark {
       position: absolute;
-      inset: 0;
-      background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
-      background-size: 32px 32px;
-      mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 40%, transparent 100%);
+      top: 50%;
+      right: -2%;
+      transform: translateY(-54%);
+      font-family: var(--display);
+      font-weight: 900;
+      font-size: clamp(18rem, 38vw, 38rem);
+      line-height: 1;
+      color: rgba(30,22,12,0.032);
+      user-select: none;
       pointer-events: none;
+      letter-spacing: -.05em;
     }
 
     .hero-inner {
-      max-width: 900px;
       position: relative;
       z-index: 1;
+      max-width: 820px;
     }
 
-    .hero-badge {
-      display: inline-flex;
+    .hero-kicker {
+      display: flex;
       align-items: center;
-      gap: .5rem;
-      font-family: var(--mono);
-      font-size: .72rem;
-      font-weight: 400;
-      color: var(--gold);
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      border: 1px solid rgba(200,169,110,.25);
-      padding: .35rem .8rem;
-      border-radius: 2px;
-      margin-bottom: 2rem;
+      gap: .75rem;
+      margin-bottom: 2.5rem;
       opacity: 0;
-      animation: fadeUp .6s .1s forwards;
+      animation: reveal .7s .1s forwards;
     }
 
-    .hero-badge::before {
-      content: '';
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--gold);
-      box-shadow: 0 0 8px var(--gold);
-      animation: pulse 2s infinite;
+    .kicker-rule {
+      width: 32px;
+      height: 1px;
+      background: var(--rust);
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .4; }
+    .kicker-text {
+      font-family: var(--mono);
+      font-size: .7rem;
+      font-weight: 400;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--rust);
     }
 
     h1 {
       font-family: var(--display);
-      font-weight: 800;
-      font-size: clamp(2.8rem, 7vw, 6.5rem);
-      line-height: 1.02;
-      letter-spacing: -.03em;
-      color: #e8e0d4;
-      margin-bottom: 1.5rem;
+      font-weight: 900;
+      font-size: clamp(3rem, 8vw, 7.5rem);
+      line-height: .96;
+      letter-spacing: -.025em;
+      color: var(--ink);
+      margin-bottom: 2rem;
       opacity: 0;
-      animation: fadeUp .7s .2s forwards;
+      animation: reveal .75s .2s forwards;
     }
 
     h1 em {
-      font-style: normal;
-      color: var(--gold);
+      font-style: italic;
+      color: var(--rust);
     }
 
     .hero-sub {
-      font-family: var(--serif);
-      font-size: clamp(1.1rem, 2.2vw, 1.4rem);
-      font-weight: 300;
-      color: var(--text-dim);
-      max-width: 580px;
-      line-height: 1.7;
-      margin-bottom: 2.5rem;
+      font-family: var(--body);
+      font-size: clamp(1.1rem, 2vw, 1.3rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--ink-2);
+      max-width: 520px;
+      line-height: 1.75;
+      margin-bottom: 2.75rem;
       opacity: 0;
-      animation: fadeUp .7s .35s forwards;
+      animation: reveal .75s .32s forwards;
     }
 
     .hero-actions {
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
-      margin-bottom: 4.5rem;
+      margin-bottom: 5rem;
       opacity: 0;
-      animation: fadeUp .7s .48s forwards;
+      animation: reveal .75s .44s forwards;
     }
 
     .btn-primary {
       font-family: var(--mono);
-      font-size: .82rem;
+      font-size: .76rem;
       font-weight: 500;
-      letter-spacing: .06em;
+      letter-spacing: .08em;
       text-transform: uppercase;
       color: var(--bg);
-      background: var(--gold);
-      padding: .8rem 1.8rem;
-      border-radius: 2px;
+      background: var(--ink);
+      padding: .85rem 2rem;
+      border-radius: 1px;
       text-decoration: none;
       transition: background .2s, transform .15s;
       display: inline-block;
     }
 
     .btn-primary:hover {
-      background: var(--gold-bright);
+      background: var(--rust);
       transform: translateY(-1px);
     }
 
     .btn-ghost {
       font-family: var(--mono);
-      font-size: .82rem;
+      font-size: .76rem;
       font-weight: 400;
-      letter-spacing: .06em;
+      letter-spacing: .08em;
       text-transform: uppercase;
-      color: var(--text-dim);
+      color: var(--ink-2);
       background: transparent;
       border: 1px solid var(--border-hi);
-      padding: .8rem 1.8rem;
-      border-radius: 2px;
+      padding: .85rem 2rem;
+      border-radius: 1px;
       text-decoration: none;
-      transition: border-color .2s, color .2s, transform .15s;
+      transition: all .2s;
       display: inline-block;
     }
 
     .btn-ghost:hover {
-      color: var(--text);
-      border-color: rgba(255,255,255,.2);
+      color: var(--ink);
+      border-color: var(--ink-2);
       transform: translateY(-1px);
     }
 
-    /* ── PIPELINE VIZ (hero) ── */
-    .pipeline-viz {
+    /* ── PIPELINE STRIP (hero bottom) ── */
+    .pipeline-strip {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 0;
+      border-top: 1px solid var(--border);
+      padding-top: 2rem;
       opacity: 0;
-      animation: fadeUp .7s .6s forwards;
+      animation: reveal .75s .56s forwards;
     }
 
-    .pv-gate {
+    .ps-item {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
       gap: .5rem;
-    }
-
-    .pv-num {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      border: 1px solid var(--border-hi);
-      background: var(--surface);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--mono);
-      font-size: .72rem;
-      font-weight: 500;
-      color: var(--text-dim);
-      transition: all .3s;
+      padding-right: 1.5rem;
       position: relative;
     }
 
-    .pv-gate:hover .pv-num {
-      border-color: var(--gold);
-      color: var(--gold);
-      background: var(--gold-dim);
-      box-shadow: 0 0 16px var(--gold-glow);
-    }
-
-    .pv-label {
-      font-family: var(--mono);
-      font-size: .62rem;
-      color: var(--text-muted);
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      max-width: 80px;
-      text-align: center;
-      line-height: 1.3;
-    }
-
-    .pv-gate:hover .pv-label { color: var(--text-dim); }
-
-    .pv-line {
-      flex: 1;
+    .ps-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: .55rem;
+      right: .5rem;
+      width: 12px;
       height: 1px;
-      background: linear-gradient(90deg, var(--border-hi), var(--border));
-      margin-bottom: 1.5rem;
-      min-width: 20px;
-      max-width: 60px;
+      background: var(--border-hi);
     }
 
-    .pv-you {
+    .ps-you {
       font-family: var(--mono);
-      font-size: .58rem;
-      color: var(--gold);
-      letter-spacing: .08em;
-      background: var(--gold-dim);
-      border: 1px solid rgba(200,169,110,.2);
-      padding: .1rem .35rem;
-      border-radius: 2px;
-      white-space: nowrap;
+      font-size: .6rem;
+      letter-spacing: .1em;
+      color: var(--rust);
+      text-transform: uppercase;
     }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
+    .ps-num {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 1.4rem;
+      color: var(--ink-4);
+      line-height: 1;
+      letter-spacing: -.02em;
     }
 
-    /* ── SECTIONS ── */
+    .ps-label {
+      font-family: var(--mono);
+      font-size: .63rem;
+      letter-spacing: .06em;
+      color: var(--ink-3);
+      text-transform: uppercase;
+      line-height: 1.4;
+    }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* ── REVEAL ON SCROLL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── SECTION COMMON ── */
     section {
-      padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem);
+      padding: clamp(4rem, 9vw, 7rem) clamp(1.5rem, 6vw, 5rem);
     }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .section-n {
+      font-family: var(--display);
+      font-weight: 900;
+      font-style: italic;
+      font-size: 4rem;
+      color: var(--ink-4);
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .section-header-text {}
 
     .section-label {
       font-family: var(--mono);
-      font-size: .72rem;
+      font-size: .68rem;
       font-weight: 400;
       letter-spacing: .14em;
       text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 1rem;
+      color: var(--rust);
+      margin-bottom: .5rem;
     }
 
     h2 {
       font-family: var(--display);
-      font-weight: 800;
-      font-size: clamp(2rem, 4vw, 3.5rem);
-      color: #e8e0d4;
+      font-weight: 900;
+      font-size: clamp(2.2rem, 4.5vw, 4rem);
+      line-height: .98;
       letter-spacing: -.03em;
-      line-height: 1.06;
-      margin-bottom: 1rem;
+      color: var(--ink);
     }
+
+    h2 em { font-style: italic; color: var(--rust); }
 
     .section-sub {
-      font-family: var(--serif);
-      font-size: 1.15rem;
-      font-weight: 300;
-      color: var(--text-dim);
-      max-width: 500px;
-      line-height: 1.7;
-      margin-bottom: 3.5rem;
-    }
-
-    /* ── REVEAL ── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(28px);
-      transition: opacity .65s, transform .65s;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: none;
-    }
-
-    /* ── GATES SECTION ── */
-    .gates-section {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .gates-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .gate-card {
-      background: var(--surface);
-      padding: 2rem 1.75rem;
-      transition: background .25s;
-      cursor: default;
-    }
-
-    .gate-card:hover { background: var(--surface-2); }
-
-    .gate-n {
-      font-family: var(--mono);
-      font-size: .68rem;
-      font-weight: 500;
-      letter-spacing: .1em;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      margin-bottom: .6rem;
-    }
-
-    .gate-name {
-      font-family: var(--display);
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: #ddd5c5;
-      letter-spacing: -.01em;
-      margin-bottom: .75rem;
-      line-height: 1.25;
-    }
-
-    .gate-desc {
-      font-family: var(--serif);
-      font-size: .96rem;
-      font-weight: 300;
-      color: var(--text-dim);
-      line-height: 1.65;
-      margin-bottom: 1.25rem;
-    }
-
-    .gate-agents {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .4rem;
-    }
-
-    .gate-agent-tag {
-      font-family: var(--mono);
-      font-size: .62rem;
-      font-weight: 400;
-      letter-spacing: .04em;
-      color: var(--text-dim);
-      border: 1px solid var(--border-hi);
-      padding: .2rem .5rem;
-      border-radius: 2px;
-      background: transparent;
-    }
-
-    .gate-card:hover .gate-agent-tag { border-color: rgba(255,255,255,.14); }
-
-    .gate-review-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .35rem;
-      font-family: var(--mono);
-      font-size: .62rem;
-      color: var(--gold);
-      border: 1px solid rgba(200,169,110,.22);
-      background: var(--gold-dim);
-      padding: .2rem .55rem;
-      border-radius: 2px;
-      margin-bottom: .8rem;
-    }
-
-    .gate-review-badge::before {
-      content: '';
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--gold);
-    }
-
-    /* ── AGENTS SECTION ── */
-    .agents-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .agent-card {
-      background: var(--surface);
-      padding: 1.75rem;
-      position: relative;
-      transition: background .25s;
-      overflow: hidden;
-    }
-
-    .agent-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border-hi), transparent);
-      opacity: 0;
-      transition: opacity .3s;
-    }
-
-    .agent-card:hover {
-      background: var(--surface-2);
-    }
-
-    .agent-card:hover::before { opacity: 1; }
-
-    .agent-monogram {
-      width: 38px; height: 38px;
-      border-radius: 3px;
-      background: var(--gold-dim);
-      border: 1px solid rgba(200,169,110,.18);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--mono);
-      font-size: .9rem;
-      font-weight: 500;
-      color: var(--gold);
-      margin-bottom: 1rem;
-      transition: background .25s, box-shadow .25s;
-    }
-
-    .agent-card:hover .agent-monogram {
-      background: rgba(200,169,110,.15);
-      box-shadow: 0 0 20px var(--gold-glow);
-    }
-
-    .agent-name {
-      font-family: var(--serif);
+      font-family: var(--body);
       font-style: italic;
-      font-size: 1.2rem;
-      font-weight: 300;
-      color: #ddd5c5;
-      margin-bottom: .25rem;
-      line-height: 1.2;
-    }
-
-    .agent-role {
-      font-family: var(--mono);
-      font-size: .68rem;
-      font-weight: 500;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: .85rem;
-    }
-
-    .agent-desc {
-      font-family: var(--serif);
-      font-size: .94rem;
-      font-weight: 300;
-      color: var(--text-dim);
-      line-height: 1.65;
-    }
-
-    /* ── INSTALL SECTION ── */
-    .install-section {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-    }
-
-    .terminal {
-      background: #0a0a0f;
-      border: 1px solid var(--border-hi);
-      border-radius: 6px;
-      overflow: hidden;
-      max-width: 700px;
-      box-shadow: 0 24px 80px rgba(0,0,0,.5);
-    }
-
-    .terminal-bar {
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .85rem 1.2rem;
-      background: rgba(255,255,255,.025);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .tbar-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-    }
-
-    .tbar-dot:nth-child(1) { background: #e05c5c; }
-    .tbar-dot:nth-child(2) { background: #c8a96e; }
-    .tbar-dot:nth-child(3) { background: #5cc9a0; }
-
-    .tbar-title {
-      flex: 1;
-      text-align: center;
-      font-family: var(--mono);
-      font-size: .7rem;
-      color: var(--text-muted);
-      letter-spacing: .05em;
-    }
-
-    .terminal-body {
-      padding: 1.5rem 1.75rem 1.75rem;
-    }
-
-    .cmd-block {
-      margin-bottom: 1.25rem;
-      padding-bottom: 1.25rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .cmd-block:last-child {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-
-    .cmd-comment {
-      font-family: var(--mono);
-      font-size: .72rem;
-      color: var(--text-muted);
-      margin-bottom: .5rem;
-      line-height: 1.5;
-    }
-
-    .cmd-line {
-      display: flex;
-      align-items: flex-start;
-      gap: .6rem;
-      cursor: pointer;
-      position: relative;
-      group: true;
-    }
-
-    .cmd-prompt {
-      font-family: var(--mono);
-      font-size: .85rem;
-      color: var(--gold);
-      flex-shrink: 0;
-      margin-top: .02em;
-      user-select: none;
-    }
-
-    .cmd-text {
-      font-family: var(--mono);
-      font-size: .85rem;
-      color: var(--text);
-      line-height: 1.55;
-      flex: 1;
-      word-break: break-all;
-    }
-
-    .cmd-copy {
-      font-family: var(--mono);
-      font-size: .65rem;
-      color: var(--text-muted);
-      border: 1px solid var(--border);
-      background: transparent;
-      padding: .2rem .5rem;
-      border-radius: 2px;
-      cursor: pointer;
-      transition: all .2s;
-      flex-shrink: 0;
-      margin-top: .1rem;
-      letter-spacing: .04em;
-    }
-
-    .cmd-copy:hover {
-      color: var(--gold);
-      border-color: rgba(200,169,110,.3);
-      background: var(--gold-dim);
-    }
-
-    .cmd-copy.copied {
-      color: var(--green);
-      border-color: rgba(92,201,160,.3);
-      background: rgba(92,201,160,.08);
-    }
-
-    .install-note {
-      font-family: var(--serif);
-      font-size: .95rem;
-      font-weight: 300;
-      color: var(--text-dim);
-      line-height: 1.7;
-      max-width: 600px;
-      margin-top: 2rem;
-      padding: 1.25rem 1.5rem;
-      border-left: 2px solid rgba(200,169,110,.3);
-      background: var(--gold-dim);
-      border-radius: 0 3px 3px 0;
-    }
-
-    .install-note strong {
-      color: var(--gold);
-      font-weight: 400;
+      font-size: 1.1rem;
+      color: var(--ink-2);
+      line-height: 1.75;
+      max-width: 480px;
+      margin-top: .75rem;
     }
 
     /* ── HOW IT WORKS ── */
+    .how-section {
+      background: var(--bg-warm);
+      border-bottom: 1px solid var(--border);
+    }
+
     .how-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 3rem;
     }
 
-    .how-card {
-      padding: 0;
-    }
-
-    .how-icon {
-      width: 44px; height: 44px;
-      border-radius: 3px;
-      background: var(--surface);
-      border: 1px solid var(--border-hi);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      margin-bottom: 1.25rem;
+    .how-n {
+      font-family: var(--display);
+      font-weight: 900;
+      font-style: italic;
+      font-size: 2.5rem;
+      color: var(--ink-4);
+      line-height: 1;
+      margin-bottom: 1rem;
+      letter-spacing: -.03em;
     }
 
     .how-title {
       font-family: var(--display);
       font-weight: 700;
-      font-size: 1.05rem;
-      color: #ddd5c5;
+      font-size: 1.15rem;
+      color: var(--ink);
       letter-spacing: -.01em;
       margin-bottom: .6rem;
+      line-height: 1.2;
     }
 
     .how-desc {
-      font-family: var(--serif);
-      font-size: .96rem;
-      font-weight: 300;
-      color: var(--text-dim);
+      font-family: var(--body);
+      font-size: 1rem;
+      color: var(--ink-2);
       line-height: 1.7;
     }
 
-    /* ── DIVIDER ── */
-    .divider {
-      width: 100%;
-      height: 1px;
-      background: var(--border);
+    /* ── GATES SECTION ── */
+    .gates-section {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gates-list {
+      border-top: 1px solid var(--border);
+    }
+
+    .gate-row {
+      display: grid;
+      grid-template-columns: 80px 1fr 1fr auto;
+      gap: 2rem;
+      align-items: start;
+      padding: 2.25rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: background .2s;
+    }
+
+    .gate-row:hover { background: var(--bg-warm); margin: 0 -3rem; padding-left: 3rem; padding-right: 3rem; }
+
+    .gate-num-big {
+      font-family: var(--display);
+      font-weight: 900;
+      font-style: italic;
+      font-size: 3rem;
+      color: var(--ink-4);
+      line-height: 1;
+      letter-spacing: -.04em;
+      padding-top: .15rem;
+    }
+
+    .gate-title {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--ink);
+      letter-spacing: -.015em;
+      margin-bottom: .5rem;
+      line-height: 1.2;
+    }
+
+    .gate-desc-text {
+      font-family: var(--body);
+      font-size: 1rem;
+      color: var(--ink-2);
+      line-height: 1.65;
+    }
+
+    .gate-agents-col {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+      padding-top: .15rem;
+    }
+
+    .gate-agent-item {
+      font-family: var(--mono);
+      font-size: .65rem;
+      font-weight: 400;
+      letter-spacing: .06em;
+      color: var(--ink-3);
+      text-transform: uppercase;
+    }
+
+    .gate-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-family: var(--mono);
+      font-size: .6rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--rust);
+      border: 1px solid var(--rust-line);
+      background: var(--rust-dim);
+      padding: .25rem .65rem;
+      border-radius: 1px;
+      white-space: nowrap;
+      align-self: start;
+    }
+
+    .gate-badge::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--rust);
+    }
+
+    /* ── AGENTS ── */
+    .agents-section {
+      background: var(--bg-warm);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .agents-list {
+      border-top: 1px solid var(--border);
+    }
+
+    .agent-row {
+      display: grid;
+      grid-template-columns: 52px 200px 1fr;
+      gap: 2rem;
+      align-items: center;
+      padding: 1.6rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: background .2s;
+    }
+
+    .agent-row:hover {
+      background: var(--surface);
+      margin: 0 -3rem;
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
+
+    .agent-initials {
+      width: 44px; height: 44px;
+      border-radius: 2px;
+      border: 1px solid var(--border-hi);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--display);
+      font-weight: 700;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--ink-2);
+      flex-shrink: 0;
+      transition: border-color .2s, color .2s;
+    }
+
+    .agent-row:hover .agent-initials {
+      border-color: var(--rust-line);
+      color: var(--rust);
+      background: var(--rust-dim);
+    }
+
+    .agent-name-col {}
+
+    .agent-name {
+      font-family: var(--display);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.15rem;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: .2rem;
+    }
+
+    .agent-role {
+      font-family: var(--mono);
+      font-size: .63rem;
+      font-weight: 400;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--rust);
+    }
+
+    .agent-desc-text {
+      font-family: var(--body);
+      font-size: .98rem;
+      color: var(--ink-2);
+      line-height: 1.65;
+    }
+
+    /* ── INSTALL ── */
+    .install-section {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .install-cols {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .install-left {}
+
+    .install-steps {
+      list-style: none;
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .install-step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .step-n {
+      font-family: var(--display);
+      font-weight: 900;
+      font-style: italic;
+      font-size: 1.6rem;
+      color: var(--ink-4);
+      line-height: 1;
+      flex-shrink: 0;
+      width: 28px;
+    }
+
+    .step-text {
+      font-family: var(--body);
+      font-size: 1rem;
+      color: var(--ink-2);
+      line-height: 1.6;
+      padding-top: .15rem;
+    }
+
+    .step-text strong { font-weight: 500; color: var(--ink); }
+
+    /* recipe-style code block */
+    .recipe {
+      background: #fdfaf5;
+      border: 1px solid var(--border-hi);
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 2px 24px rgba(30,22,12,0.06), 0 0 0 1px rgba(30,22,12,0.04);
+    }
+
+    .recipe-header {
+      padding: .85rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(30,22,12,0.025);
+    }
+
+    .recipe-title {
+      font-family: var(--mono);
+      font-size: .68rem;
+      font-weight: 400;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .recipe-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .recipe-cmd {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+    }
+
+    .recipe-cmd:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .recipe-comment {
+      font-family: var(--mono);
+      font-size: .67rem;
+      color: var(--ink-4);
+      margin-bottom: .45rem;
+      letter-spacing: .02em;
+    }
+
+    .recipe-line {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+    }
+
+    .recipe-prompt {
+      font-family: var(--mono);
+      font-size: .82rem;
+      color: var(--rust);
+      flex-shrink: 0;
+      margin-top: .03em;
+      user-select: none;
+    }
+
+    .recipe-code {
+      font-family: var(--mono);
+      font-size: .82rem;
+      color: var(--ink);
+      line-height: 1.5;
+      flex: 1;
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      font-family: var(--mono);
+      font-size: .62rem;
+      font-weight: 400;
+      letter-spacing: .06em;
+      color: var(--ink-3);
+      border: 1px solid var(--border);
+      background: transparent;
+      padding: .22rem .55rem;
+      border-radius: 1px;
+      cursor: pointer;
+      transition: all .2s;
+      flex-shrink: 0;
+      margin-top: .05rem;
+    }
+
+    .copy-btn:hover {
+      color: var(--rust);
+      border-color: var(--rust-line);
+      background: var(--rust-dim);
+    }
+
+    .copy-btn.done {
+      color: var(--green);
+      border-color: rgba(45,102,69,.25);
+      background: rgba(45,102,69,.06);
+    }
+
+    .install-note {
+      margin-top: 1.5rem;
+      padding: 1.25rem 1.5rem;
+      border-left: 2px solid var(--rust-line);
+      background: var(--rust-dim);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .install-note p {
+      font-family: var(--body);
+      font-size: .97rem;
+      font-style: italic;
+      color: var(--ink-2);
+      line-height: 1.7;
+    }
+
+    .install-note strong {
+      font-weight: 500;
+      font-style: normal;
+      color: var(--rust);
+    }
+
+    code {
+      font-family: var(--mono);
+      font-size: .82em;
+      color: var(--ink);
+      background: rgba(30,22,12,.06);
+      padding: .1em .35em;
+      border-radius: 2px;
     }
 
     /* ── FOOTER ── */
     footer {
-      padding: 2.5rem clamp(1.5rem, 5vw, 4rem);
+      padding: 2rem clamp(1.5rem, 6vw, 5rem);
       border-top: 1px solid var(--border);
       display: flex;
       align-items: center;
@@ -767,51 +779,41 @@
 
     .footer-left {
       font-family: var(--mono);
-      font-size: .72rem;
-      color: var(--text-muted);
+      font-size: .68rem;
+      color: var(--ink-4);
       letter-spacing: .05em;
     }
 
-    .footer-left span { color: var(--text-dim); }
-
-    .footer-links {
+    .footer-right {
       display: flex;
       gap: 1.5rem;
     }
 
-    .footer-links a {
+    .footer-right a {
       font-family: var(--mono);
-      font-size: .72rem;
-      color: var(--text-muted);
-      text-decoration: none;
-      letter-spacing: .06em;
+      font-size: .68rem;
+      letter-spacing: .08em;
       text-transform: uppercase;
+      color: var(--ink-3);
+      text-decoration: none;
       transition: color .2s;
     }
 
-    .footer-links a:hover { color: var(--text-dim); }
+    .footer-right a:hover { color: var(--ink); }
 
-    /* ── HIGHLIGHT TEXT ── */
-    .gold { color: var(--gold); }
-    .mono { font-family: var(--mono); }
-
-    /* ── GLOW HEADER BG ── */
-    .hero-glow {
-      position: absolute;
-      width: 700px;
-      height: 700px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(200,169,110,.06) 0%, transparent 70%);
-      top: -200px;
-      left: -150px;
-      pointer-events: none;
-    }
+    /* ── DIVIDER ── */
+    hr { border: none; border-top: 1px solid var(--border); }
 
     /* ── RESPONSIVE ── */
-    @media (max-width: 600px) {
-      .pipeline-viz { display: none; }
+    @media (max-width: 720px) {
+      .gate-row { grid-template-columns: 56px 1fr; }
+      .gate-agents-col, .gate-badge { display: none; }
+      .agent-row { grid-template-columns: 44px 1fr; }
+      .agent-desc-text { display: none; }
+      .install-cols { grid-template-columns: 1fr; }
+      .pipeline-strip { display: none; }
       .nav-links a:not(.nav-cta) { display: none; }
-      .agents-grid { grid-template-columns: 1fr; }
+      .hero-watermark { display: none; }
     }
   </style>
 </head>
@@ -819,7 +821,7 @@
 
 <!-- NAV -->
 <nav>
-  <a href="#" class="nav-logo">autonomous<span>/</span>workflow</a>
+  <a href="#" class="nav-logo">autonomous-workflow</a>
   <div class="nav-links">
     <a href="#pipeline">Pipeline</a>
     <a href="#agents">Agents</a>
@@ -831,291 +833,324 @@
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-glow"></div>
+  <div class="hero-watermark">8</div>
   <div class="hero-inner">
-    <div class="hero-badge">Claude Code Plugin &nbsp;·&nbsp; v0.2.0</div>
-    <h1>Ship features with a<br><em>principal-level</em><br>AI team.</h1>
-    <p class="hero-sub">Drop a rough requirement. Eight specialized agents research, design, architect, and build — with your approval at every gate before a single line is written.</p>
+    <div class="hero-kicker">
+      <div class="kicker-rule"></div>
+      <div class="kicker-text">Claude Code Plugin &nbsp;·&nbsp; v0.2.0</div>
+    </div>
+    <h1>Ship features<br>with a team of<br><em>AI experts.</em></h1>
+    <p class="hero-sub">Drop a rough requirement. Eight specialized agents research, design, architect, and build — with your approval at every gate before a single line is committed.</p>
     <div class="hero-actions">
       <a href="#install" class="btn-primary">Install Plugin</a>
       <a href="https://github.com/D4rsh4k/autonomous-workflow" target="_blank" rel="noopener" class="btn-ghost">View on GitHub ↗</a>
     </div>
 
-    <!-- Pipeline mini-viz -->
-    <div class="pipeline-viz">
-      <div class="pv-gate">
-        <div class="pv-you">YOU</div>
-        <div class="pv-num">1</div>
-        <div class="pv-label">Spec<br>Alignment</div>
+    <div class="pipeline-strip">
+      <div class="ps-item">
+        <div class="ps-you">You</div>
+        <div class="ps-num">1</div>
+        <div class="ps-label">Spec<br>Alignment</div>
       </div>
-      <div class="pv-line"></div>
-      <div class="pv-gate">
-        <div class="pv-you">YOU</div>
-        <div class="pv-num">2</div>
-        <div class="pv-label">Design<br>Options</div>
+      <div class="ps-item">
+        <div class="ps-you">You</div>
+        <div class="ps-num">2</div>
+        <div class="ps-label">Design<br>Options</div>
       </div>
-      <div class="pv-line"></div>
-      <div class="pv-gate">
-        <div class="pv-you">YOU</div>
-        <div class="pv-num">3</div>
-        <div class="pv-label">Tech<br>Contract</div>
+      <div class="ps-item">
+        <div class="ps-you">You</div>
+        <div class="ps-num">3</div>
+        <div class="ps-label">Tech<br>Contract</div>
       </div>
-      <div class="pv-line"></div>
-      <div class="pv-gate">
-        <div class="pv-you">YOU</div>
-        <div class="pv-num">3½</div>
-        <div class="pv-label">Tech Spec<br>Review</div>
+      <div class="ps-item">
+        <div class="ps-you">You</div>
+        <div class="ps-num">3½</div>
+        <div class="ps-label">Tech Spec<br>Review</div>
       </div>
-      <div class="pv-line"></div>
-      <div class="pv-gate">
-        <div class="pv-you">YOU</div>
-        <div class="pv-num">4</div>
-        <div class="pv-label">QA +<br>Sign-off</div>
+      <div class="ps-item">
+        <div class="ps-you">You</div>
+        <div class="ps-num">4</div>
+        <div class="ps-label">QA &amp;<br>Sign-off</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- HOW IT WORKS -->
-<section>
+<section class="how-section">
   <div class="section-label reveal">How it works</div>
-  <h2 class="reveal">Brief once.<br>Ship with confidence.</h2>
+  <h2 class="reveal">Brief once.<br>Ship with <em>confidence.</em></h2>
   <p class="section-sub reveal">You stay in control without being in the weeds. The agents do the work; you make the calls.</p>
 
-  <div class="how-grid">
-    <div class="how-card reveal">
-      <div class="how-icon">✦</div>
+  <div class="how-grid" style="margin-top: 3.5rem;">
+    <div class="reveal">
+      <div class="how-n">01</div>
       <div class="how-title">Drop a rough requirement</div>
-      <div class="how-desc">2–3 sentences is enough. Tony Stark (your PM) asks sharpening questions, then commissions research and writes the spec.</div>
+      <div class="how-desc">2–3 sentences is enough. Tony Stark (your PM) asks sharpening questions, commissions research, then writes the full spec with success metrics.</div>
     </div>
-    <div class="how-card reveal" style="transition-delay:.08s">
-      <div class="how-icon">◈</div>
+    <div class="reveal" style="transition-delay:.08s">
+      <div class="how-n">02</div>
       <div class="how-title">Review gates, not pull requests</div>
-      <div class="how-desc">At each of the 5 gates you see a styled HTML summary and approve or push back. No code is written until you sign off on the architecture.</div>
+      <div class="how-desc">At each of the 5 gates you approve or push back. A browser-ready HTML summary is generated every time. No code is written until you sign off.</div>
     </div>
-    <div class="how-card reveal" style="transition-delay:.16s">
-      <div class="how-icon">◎</div>
-      <div class="how-title">Agents stay in their lane</div>
-      <div class="how-desc">Each agent has a strict role, never improvises outside it, and passes work to the next agent through shared artifacts your session can resume at any time.</div>
+    <div class="reveal" style="transition-delay:.16s">
+      <div class="how-n">03</div>
+      <div class="how-title">Each agent owns its domain</div>
+      <div class="how-desc">Agents have strict roles, never improvise outside them, and pass work through shared artifacts. Your session can resume from any gate.</div>
     </div>
-    <div class="how-card reveal" style="transition-delay:.24s">
-      <div class="how-icon">⟳</div>
-      <div class="how-title">The pipeline gets smarter</div>
-      <div class="how-desc">After every run, Yoda distils what worked into <span class="mono" style="font-size:.85em">learnings.md</span>. Every subsequent run reads those learnings and improves.</div>
+    <div class="reveal" style="transition-delay:.24s">
+      <div class="how-n">04</div>
+      <div class="how-title">The pipeline learns</div>
+      <div class="how-desc">After every run, Yoda distils outcomes into <code>learnings.md</code>. Every subsequent run reads those learnings and improves on them.</div>
     </div>
   </div>
 </section>
 
-<div class="divider"></div>
-
-<!-- PIPELINE / GATES -->
+<!-- GATES -->
 <section class="gates-section" id="pipeline">
   <div class="section-label reveal">The pipeline</div>
-  <h2 class="reveal">Five gates.<br>Zero surprises.</h2>
-  <p class="section-sub reveal">Every gate ends with a human decision point and a browser-ready HTML summary of all artifacts.</p>
+  <h2 class="reveal">Five gates.<br><em>Zero surprises.</em></h2>
+  <p class="section-sub reveal">Every gate ends with a human decision point and a browser-ready HTML summary.</p>
 
-  <div class="gates-grid reveal">
+  <div class="gates-list reveal" style="margin-top: 3rem;">
 
-    <div class="gate-card">
-      <div class="gate-n">Gate 1</div>
-      <div class="gate-review-badge">Human review</div>
-      <div class="gate-name">Spec Alignment</div>
-      <div class="gate-desc">Clarify requirements, run competitive research, write the brief with success metrics, validate all assumptions.</div>
-      <div class="gate-agents">
-        <span class="gate-agent-tag">Tony Stark</span>
-        <span class="gate-agent-tag">Sherlock Holmes</span>
-        <span class="gate-agent-tag">Hermione</span>
+    <div class="gate-row">
+      <div class="gate-num-big">1</div>
+      <div>
+        <div class="gate-title">Spec Alignment</div>
+        <div class="gate-desc-text">Clarify requirements, run competitive research, write the brief with success metrics, validate all assumptions before proceeding.</div>
       </div>
+      <div class="gate-agents-col">
+        <div class="gate-agent-item">Tony Stark</div>
+        <div class="gate-agent-item">Sherlock Holmes</div>
+        <div class="gate-agent-item">Hermione Granger</div>
+      </div>
+      <div class="gate-badge">Human review</div>
     </div>
 
-    <div class="gate-card">
-      <div class="gate-n">Gate 2</div>
-      <div class="gate-review-badge">Human review</div>
-      <div class="gate-name">Design Options</div>
-      <div class="gate-desc">3–5 UX approaches built as live frontend routes with performance assessments and research annotations. You pick one.</div>
-      <div class="gate-agents">
-        <span class="gate-agent-tag">Jonathan Ive</span>
-        <span class="gate-agent-tag">Jackie Chan</span>
-        <span class="gate-agent-tag">Bob</span>
-        <span class="gate-agent-tag">Sherlock</span>
+    <div class="gate-row">
+      <div class="gate-num-big">2</div>
+      <div>
+        <div class="gate-title">Design Options</div>
+        <div class="gate-desc-text">3–5 UX approaches built as live frontend routes, each with performance advisory and research annotation. You pick one; the rest are torn down.</div>
       </div>
+      <div class="gate-agents-col">
+        <div class="gate-agent-item">Jonathan Ive</div>
+        <div class="gate-agent-item">Jackie Chan</div>
+        <div class="gate-agent-item">Bob the Builder</div>
+        <div class="gate-agent-item">Sherlock Holmes</div>
+      </div>
+      <div class="gate-badge">Human review</div>
     </div>
 
-    <div class="gate-card">
-      <div class="gate-n">Gate 3</div>
-      <div class="gate-review-badge">Human review</div>
-      <div class="gate-name">Technical Contract</div>
-      <div class="gate-desc">Full API contract: endpoints, request/response shapes, error handling, auth, loading strategy, data model. Reviewed by all consumers before approval.</div>
-      <div class="gate-agents">
-        <span class="gate-agent-tag">Bob</span>
-        <span class="gate-agent-tag">Jackie Chan</span>
-        <span class="gate-agent-tag">Jonathan Ive</span>
+    <div class="gate-row">
+      <div class="gate-num-big">3</div>
+      <div>
+        <div class="gate-title">Technical Contract</div>
+        <div class="gate-desc-text">Full API contract — endpoints, shapes, error contracts, auth, loading strategy, data model — reviewed and signed off by all consumers.</div>
       </div>
+      <div class="gate-agents-col">
+        <div class="gate-agent-item">Bob the Builder</div>
+        <div class="gate-agent-item">Jackie Chan</div>
+        <div class="gate-agent-item">Jonathan Ive</div>
+      </div>
+      <div class="gate-badge">Human review</div>
     </div>
 
-    <div class="gate-card">
-      <div class="gate-n">Gate 3½</div>
-      <div class="gate-review-badge">Human review</div>
-      <div class="gate-name">Tech Spec Review</div>
-      <div class="gate-desc">Schema DDL, build sequence, exact files touched, rollback plan. Schema changes to existing tables require explicit approval.</div>
-      <div class="gate-agents">
-        <span class="gate-agent-tag">Bob</span>
-        <span class="gate-agent-tag">Jackie Chan</span>
-        <span class="gate-agent-tag">Hermione</span>
+    <div class="gate-row">
+      <div class="gate-num-big">3½</div>
+      <div>
+        <div class="gate-title">Tech Spec Review</div>
+        <div class="gate-desc-text">Schema DDL, exact files touched, build sequence, rollback plan. Schema changes to existing tables require your explicit approval.</div>
       </div>
+      <div class="gate-agents-col">
+        <div class="gate-agent-item">Bob the Builder</div>
+        <div class="gate-agent-item">Jackie Chan</div>
+        <div class="gate-agent-item">Hermione Granger</div>
+      </div>
+      <div class="gate-badge">Human review</div>
     </div>
 
-    <div class="gate-card">
-      <div class="gate-n">Gate 4</div>
-      <div class="gate-review-badge">Human review</div>
-      <div class="gate-name">QA + Sign-off</div>
-      <div class="gate-desc">Full build, test plan, execution results, design system compliance audit, coverage gaps, go/no-go recommendation. Ship or iterate.</div>
-      <div class="gate-agents">
-        <span class="gate-agent-tag">Gordon Ramsay</span>
-        <span class="gate-agent-tag">Sherlock</span>
-        <span class="gate-agent-tag">Jonathan Ive</span>
-        <span class="gate-agent-tag">Jackie</span>
-        <span class="gate-agent-tag">Bob</span>
+    <div class="gate-row">
+      <div class="gate-num-big">4</div>
+      <div>
+        <div class="gate-title">QA + Sign-off</div>
+        <div class="gate-desc-text">Full build, test plan, execution results, design system compliance, coverage gaps, go/no-go recommendation. Ship or iterate with feedback.</div>
       </div>
+      <div class="gate-agents-col">
+        <div class="gate-agent-item">Gordon Ramsay</div>
+        <div class="gate-agent-item">Sherlock Holmes</div>
+        <div class="gate-agent-item">Jonathan Ive</div>
+        <div class="gate-agent-item">Jackie + Bob</div>
+      </div>
+      <div class="gate-badge">Human review</div>
     </div>
 
   </div>
 </section>
 
 <!-- AGENTS -->
-<section id="agents">
+<section class="agents-section" id="agents">
   <div class="section-label reveal">The crew</div>
-  <h2 class="reveal">Eight agents.<br>One shared goal.</h2>
-  <p class="section-sub reveal">Each agent operates only within its domain, reads all prior artifacts, and applies learnings from every previous run.</p>
+  <h2 class="reveal">Eight agents.<br><em>One shared goal.</em></h2>
+  <p class="section-sub reveal">Each operates only within its domain, reads all prior artifacts, and applies learnings from every previous run.</p>
 
-  <div class="agents-grid reveal">
+  <div class="agents-list reveal" style="margin-top: 3rem;">
 
-    <div class="agent-card">
-      <div class="agent-monogram">TS</div>
-      <div class="agent-name">Tony Stark</div>
-      <div class="agent-role">PM &amp; Orchestrator</div>
-      <div class="agent-desc">Owns the what and why. Drives the pipeline, resolves agent conflicts, writes the brief, and maintains the decision log.</div>
+    <div class="agent-row">
+      <div class="agent-initials">TS</div>
+      <div class="agent-name-col">
+        <div class="agent-name">Tony Stark</div>
+        <div class="agent-role">PM &amp; Orchestrator</div>
+      </div>
+      <div class="agent-desc-text">Owns the what and why. Drives the pipeline forward, resolves agent conflicts, writes the brief, and maintains the decision log.</div>
     </div>
 
-    <div class="agent-card">
-      <div class="agent-monogram">SH</div>
-      <div class="agent-name">Sherlock Holmes</div>
-      <div class="agent-role">Research &amp; Analysis</div>
-      <div class="agent-desc">Competitive analysis, assumption audits, mental model maps. Silent red-flag detector in later gates.</div>
+    <div class="agent-row">
+      <div class="agent-initials">SH</div>
+      <div class="agent-name-col">
+        <div class="agent-name">Sherlock Holmes</div>
+        <div class="agent-role">Research &amp; Analysis</div>
+      </div>
+      <div class="agent-desc-text">Competitive analysis, assumption audits, mental model maps. Silent red-flag detector in later gates — speaks only when he sees a friction pattern.</div>
     </div>
 
-    <div class="agent-card">
-      <div class="agent-monogram">JI</div>
-      <div class="agent-name">Jonathan Ive</div>
-      <div class="agent-role">UX Design</div>
-      <div class="agent-desc">Produces 3–5 interaction specs with aesthetic direction. Reviews contract for design intent. Validates final output for experience fidelity.</div>
+    <div class="agent-row">
+      <div class="agent-initials">JI</div>
+      <div class="agent-name-col">
+        <div class="agent-name">Jonathan Ive</div>
+        <div class="agent-role">UX Design</div>
+      </div>
+      <div class="agent-desc-text">Produces 3–5 interaction specs with aesthetic direction and rationale. Reviews the contract for design intent. Validates final output for experience fidelity.</div>
     </div>
 
-    <div class="agent-card">
-      <div class="agent-monogram">BB</div>
-      <div class="agent-name">Bob the Builder</div>
-      <div class="agent-role">API &amp; Architecture</div>
-      <div class="agent-desc">Designs the full API contract, schema DDL, build sequence, and rollback plan. Nothing gets built without Bob signing off.</div>
+    <div class="agent-row">
+      <div class="agent-initials">BB</div>
+      <div class="agent-name-col">
+        <div class="agent-name">Bob the Builder</div>
+        <div class="agent-role">API &amp; Architecture</div>
+      </div>
+      <div class="agent-desc-text">Designs the full API contract, schema DDL, build sequence, and rollback plan. Nothing gets built without Bob's sign-off.</div>
     </div>
 
-    <div class="agent-card">
-      <div class="agent-monogram">JC</div>
-      <div class="agent-name">Jackie Chan</div>
-      <div class="agent-role">Frontend Engineer</div>
-      <div class="agent-desc">Builds all design options as live routes. Implements the chosen option to production quality. Never creates components without justification.</div>
+    <div class="agent-row">
+      <div class="agent-initials">JC</div>
+      <div class="agent-name-col">
+        <div class="agent-name">Jackie Chan</div>
+        <div class="agent-role">Frontend Engineer</div>
+      </div>
+      <div class="agent-desc-text">Builds all design options as live routes; implements the chosen option to production quality. Never creates components without written justification.</div>
     </div>
 
-    <div class="agent-card">
-      <div class="agent-monogram">GR</div>
-      <div class="agent-name">Gordon Ramsay</div>
-      <div class="agent-role">QA &amp; Testing</div>
-      <div class="agent-desc">Writes and executes the test plan, produces gap reports and component audits, issues the final go/no-go recommendation.</div>
+    <div class="agent-row">
+      <div class="agent-initials">GR</div>
+      <div class="agent-name-col">
+        <div class="agent-name">Gordon Ramsay</div>
+        <div class="agent-role">QA &amp; Testing</div>
+      </div>
+      <div class="agent-desc-text">Writes and executes the test plan, produces gap reports and component audits, issues the final go/no-go recommendation. No tolerance for sloppy work.</div>
     </div>
 
-    <div class="agent-card">
-      <div class="agent-monogram">HG</div>
-      <div class="agent-name">Hermione Granger</div>
-      <div class="agent-role">Project Management</div>
-      <div class="agent-desc">Readiness checks at every gate. Tracks deliverable checklists, surfaces blockers, owns state.json accuracy.</div>
+    <div class="agent-row">
+      <div class="agent-initials">HG</div>
+      <div class="agent-name-col">
+        <div class="agent-name">Hermione Granger</div>
+        <div class="agent-role">Project Management</div>
+      </div>
+      <div class="agent-desc-text">Readiness checks at every gate. Tracks deliverable checklists, surfaces blockers immediately, and owns the accuracy of state.json.</div>
     </div>
 
-    <div class="agent-card">
-      <div class="agent-monogram">YO</div>
-      <div class="agent-name">Yoda</div>
-      <div class="agent-role">Learning &amp; Memory</div>
-      <div class="agent-desc">After every run, analyses decisions and outcomes and writes concise learnings that every agent reads at startup — making the next run better.</div>
+    <div class="agent-row">
+      <div class="agent-initials">YO</div>
+      <div class="agent-name-col">
+        <div class="agent-name">Yoda</div>
+        <div class="agent-role">Learning &amp; Memory</div>
+      </div>
+      <div class="agent-desc-text">After every run, analyses decisions and outcomes and writes concise learnings that all agents read at startup — making every subsequent run better.</div>
     </div>
 
   </div>
 </section>
 
-<div class="divider"></div>
-
 <!-- INSTALL -->
 <section class="install-section" id="install">
-  <div class="section-label reveal">Get started</div>
-  <h2 class="reveal">Install in<br>two commands.</h2>
-  <p class="section-sub reveal">Requires Claude Code CLI. Run from your application project directory — not this repo.</p>
-
-  <div class="terminal reveal">
-    <div class="terminal-bar">
-      <div class="tbar-dot"></div>
-      <div class="tbar-dot"></div>
-      <div class="tbar-dot"></div>
-      <div class="tbar-title">claude — zsh</div>
+  <div class="install-cols">
+    <div class="install-left reveal">
+      <div class="section-label">Get started</div>
+      <h2>Install in<br>two <em>commands.</em></h2>
+      <ol class="install-steps">
+        <li class="install-step">
+          <span class="step-n">1</span>
+          <span class="step-text">Open <strong>Claude Code</strong> (terminal or Desktop, latest version) in your application project.</span>
+        </li>
+        <li class="install-step">
+          <span class="step-n">2</span>
+          <span class="step-text">Add the marketplace and install the plugin with the two commands opposite.</span>
+        </li>
+        <li class="install-step">
+          <span class="step-n">3</span>
+          <span class="step-text">Run <code>/reload-plugins</code>, then start your first build.</span>
+        </li>
+      </ol>
     </div>
-    <div class="terminal-body">
 
-      <div class="cmd-block">
-        <div class="cmd-comment"># Add the marketplace catalog</div>
-        <div class="cmd-line">
-          <div class="cmd-prompt">/</div>
-          <div class="cmd-text">plugin marketplace add D4rsh4k/autonomous-workflow</div>
-          <button class="cmd-copy" data-copy="/plugin marketplace add D4rsh4k/autonomous-workflow">copy</button>
+    <div class="reveal" style="transition-delay:.1s">
+      <div class="recipe">
+        <div class="recipe-header">
+          <div class="recipe-title">Installation</div>
+        </div>
+        <div class="recipe-body">
+
+          <div class="recipe-cmd">
+            <div class="recipe-comment"># Step 1 — add the marketplace catalog</div>
+            <div class="recipe-line">
+              <div class="recipe-prompt">/</div>
+              <div class="recipe-code">plugin marketplace add D4rsh4k/autonomous-workflow</div>
+              <button class="copy-btn" data-copy="/plugin marketplace add D4rsh4k/autonomous-workflow">copy</button>
+            </div>
+          </div>
+
+          <div class="recipe-cmd">
+            <div class="recipe-comment"># Step 2 — install the plugin</div>
+            <div class="recipe-line">
+              <div class="recipe-prompt">/</div>
+              <div class="recipe-code">plugin install autonomous-workflow@d4rsh4k-plugins</div>
+              <button class="copy-btn" data-copy="/plugin install autonomous-workflow@d4rsh4k-plugins">copy</button>
+            </div>
+          </div>
+
+          <div class="recipe-cmd">
+            <div class="recipe-comment"># Step 3 — activate</div>
+            <div class="recipe-line">
+              <div class="recipe-prompt">/</div>
+              <div class="recipe-code">reload-plugins</div>
+              <button class="copy-btn" data-copy="/reload-plugins">copy</button>
+            </div>
+          </div>
+
+          <div class="recipe-cmd">
+            <div class="recipe-comment"># Step 4 — start your first build</div>
+            <div class="recipe-line">
+              <div class="recipe-prompt">/</div>
+              <div class="recipe-code">autonomous-workflow:build &lt;your requirement&gt;</div>
+              <button class="copy-btn" data-copy="/autonomous-workflow:build ">copy</button>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <div class="cmd-block">
-        <div class="cmd-comment"># Install the plugin</div>
-        <div class="cmd-line">
-          <div class="cmd-prompt">/</div>
-          <div class="cmd-text">plugin install autonomous-workflow@d4rsh4k-plugins</div>
-          <button class="cmd-copy" data-copy="/plugin install autonomous-workflow@d4rsh4k-plugins">copy</button>
-        </div>
+      <div class="install-note">
+        <p><strong>Desktop showing "Unknown skill: plugin"?</strong> Update Claude Code Desktop to the latest version and restart. Or use the terminal: <code>npm install -g @anthropic-ai/claude-code</code> then run <code>claude</code> from your project directory.</p>
       </div>
-
-      <div class="cmd-block">
-        <div class="cmd-comment"># Activate + run your first build</div>
-        <div class="cmd-line">
-          <div class="cmd-prompt">/</div>
-          <div class="cmd-text">reload-plugins</div>
-          <button class="cmd-copy" data-copy="/reload-plugins">copy</button>
-        </div>
-      </div>
-
-      <div class="cmd-block">
-        <div class="cmd-comment"># Start a pipeline with a rough requirement</div>
-        <div class="cmd-line">
-          <div class="cmd-prompt">/</div>
-          <div class="cmd-text">autonomous-workflow:build &lt;your requirement&gt;</div>
-          <button class="cmd-copy" data-copy="/autonomous-workflow:build ">copy</button>
-        </div>
-      </div>
-
     </div>
-  </div>
-
-  <div class="install-note reveal">
-    <strong>Using Claude Code Desktop?</strong> If <code style="font-family:var(--mono);font-size:.88em">/plugin</code> shows "Unknown skill", update Desktop to the latest version and restart. Alternatively, install the CLI: <code style="font-family:var(--mono);font-size:.88em">npm install -g @anthropic-ai/claude-code</code> and use the terminal.
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-left">
-    autonomous-workflow &nbsp;·&nbsp; <span>Claude Code plugin v0.2.0</span>
-  </div>
-  <div class="footer-links">
+  <div class="footer-left">autonomous-workflow &nbsp;·&nbsp; Claude Code Plugin v0.2.0</div>
+  <div class="footer-right">
     <a href="https://github.com/D4rsh4k/autonomous-workflow" target="_blank" rel="noopener">GitHub</a>
     <a href="https://code.claude.com/docs/en/plugins.md" target="_blank" rel="noopener">Claude Code Docs</a>
   </div>
@@ -1123,42 +1158,31 @@
 
 <script>
   // Scroll reveal
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((e, i) => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        observer.unobserve(e.target);
-      }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
     });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
 
-  document.querySelectorAll('.reveal').forEach((el, i) => {
-    observer.observe(el);
-  });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
   // Copy buttons
-  document.querySelectorAll('.cmd-copy').forEach(btn => {
+  document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const text = btn.dataset.copy;
-      navigator.clipboard.writeText(text).then(() => {
-        btn.textContent = 'copied!';
-        btn.classList.add('copied');
-        setTimeout(() => {
-          btn.textContent = 'copy';
-          btn.classList.remove('copied');
-        }, 2000);
+      navigator.clipboard.writeText(btn.dataset.copy).then(() => {
+        btn.textContent = 'copied';
+        btn.classList.add('done');
+        setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('done'); }, 2000);
       });
     });
   });
 
-  // Nav scroll effect
+  // Nav border on scroll
   const nav = document.querySelector('nav');
   window.addEventListener('scroll', () => {
-    nav.style.borderBottomColor = window.scrollY > 20
-      ? 'rgba(255,255,255,0.08)'
-      : 'rgba(255,255,255,0.06)';
-  });
+    nav.style.borderBottomColor = window.scrollY > 10
+      ? 'rgba(30,22,12,0.13)' : 'rgba(30,22,12,0.09)';
+  }, { passive: true });
 </script>
-
 </body>
 </html>
